@@ -86,7 +86,7 @@ function Signin() {
                     <img src="/Login-amico.svg" alt="" className='w-5/6 mt-16' />
                 </div>
                 <div className='flex pt-28 px-24'>
-                    <form method='POST' className='flex flex-col space-y-5'>
+                    <form onSubmit={submitForm} method='POST' className='flex flex-col space-y-5'>
                         <h1 className='h1 text-2xl'>Sign in</h1>
                         <h1 className='text-lg pr-20'>Welcome! Please login to your account</h1>
                         <h1 className='h1'>Email</h1>
