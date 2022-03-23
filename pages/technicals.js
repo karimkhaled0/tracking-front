@@ -101,7 +101,7 @@ function Technicals() {
                     <input type="radio" disabled checked />
                     <h1 className='text-gray-600'>Available</h1>
                   </div>
-                  <div className='flex space-x-2 mr-5'>
+                  <div className='flex space-x-2'>
                     <LocationMarkerIcon className='h-5 text-gray-500 cursor-pointer' />
                     <ChatAltIcon className='h-5 text-gray-500 cursor-pointer' />
                   </div>

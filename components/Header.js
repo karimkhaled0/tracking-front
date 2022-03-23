@@ -163,7 +163,7 @@ function Header({ islogged, headerView }) {
                         </div>
                         <ul className="py-1" aria-labelledby="dropdown">
                             <li>
-                                <a href="#" className="text-sm hover:bg-gray-100 text-gray-700 
+                                <a href={`/profile/${displayName}`} className="text-sm hover:bg-gray-100 text-gray-700 
                                 block px-4 py-2">Profile</a>
                             </li>
                             <li>
