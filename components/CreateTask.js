@@ -226,9 +226,10 @@ function CreateTask() {
         setNext(!next)
     }
 
-
+    var firstCateg = categoryRes[0]
+    console.log(firstCateg)
     useEffect(async () => {
-        const res = await fetch(`http://localhost:8000/api/category/users/${categ}`, {
+        const res = await fetch(`http://localhost:8000/api/category/users/${firstCateg}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -236,7 +237,7 @@ function CreateTask() {
             },
         }).then((t) => t.json()).catch((e) => console.log(e))
         setAssignName(res.technicals)
-    }, [categ])
+    }, [firstCateg])
 
 
     return (

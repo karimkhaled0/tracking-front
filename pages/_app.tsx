@@ -1,5 +1,4 @@
 import '../styles/globals.css'
-import "react-datepicker/dist/react-datepicker.css";
 import type { AppProps } from 'next/app'
 import ProgressBar from "@badrap/bar-of-progress";
 import Router from 'next/router';

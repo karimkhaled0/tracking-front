@@ -132,13 +132,11 @@ const teams = () => {
                             className="h-7 cursor-pointer rounded-full bg-blue-400 p-2 text-white flex mx-3"
                         />
                     </div>
-                    <button className='px-5 py-2 border rounded-md text-xl button bg-blue-500 text-white' onClick={closeModal}>Add technical</button>
-
                 </div>
             </section>
             <main className='grid grid-cols-4 mx-[64px] my-[80px] gap-[80px] '>
                 {/* Create Category */}
-                <button className='border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
+                <button onClick={closeModal} className='border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
                     <div className='flex flex-col items-center space-y-8'>
                         <div className='border border-blue-500 rounded-full'>
                             <PlusIcon className='h-16 p-2 m-3 text-gray-500 text-center' />

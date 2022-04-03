@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { SearchIcon, CalendarIcon } from '@heroicons/react/outline'
-import { format } from 'date-fns'
+import { SearchIcon } from '@heroicons/react/outline'
+import { format, parseISO } from 'date-fns'
 import { useRouter } from 'next/router'
 import CreateTask from '../components/CreateTask'
 import GetTasks from '../components/getTasks'
@@ -8,23 +8,20 @@ import Header from '../components/Header'
 import ViewTask from '../components/ViewTask'
 
 
-
 function Tasks() {
-    const [techNames, setTechNames] = useState('')
     const [categoryRes, setCategoryRes] = useState([])
-    const [techRes, setTechRes] = useState([])
     const [taskRes, setTaskRes] = useState([])
     const [progress, setProgress] = useState(true)
     const [review, setReview] = useState(false)
     const [finished, setFinished] = useState(false)
     const [user, setUser] = useState(false)
+
     const userCheck = useEffect(() => {
         if (localStorage.token) {
             setUser(true)
         }
     }, [])
     // date formatter
-    const formatterDate = format(new Date(), "dd-MM-yyyy")
 
     const toggleProgress = () => {
         setProgress(true)
@@ -72,7 +69,6 @@ function Tasks() {
         setTaskRes(res.tasks)
     }, [])
 
-
     return (
         <div className='relative'>
             <Header
@@ -84,9 +80,9 @@ function Tasks() {
                 <section className='mx-auto max-w-10xl px-8'>
                     {/* Search and Create task button */}
                     <div className="flex justify-between my-10 items-center">
-                        <div className='flex items-center rounded-full py-1 border-2 shadow-sm'>
+                        <div className='flex items-center rounded-full py-1 border-2 border-blue-200 shadow-sm'>
                             <input
-                                className=" bg-transparent pl-5 text-sm text-gray-600 placeholder-gray-400 outline-none"
+                                className=" bg-transparent pl-5 text-sm text-gray-600 placeholder-gray-400 outline-none  w-72"
                                 type="text"
                                 placeholder={"Start your search"}
                             />
@@ -97,7 +93,7 @@ function Tasks() {
                         <CreateTask />
                     </div>
                     {/* Sections of the tasks */}
-                    <div className='flex justify-between items-center'>
+                    <div className='flex justify-between items-center relative'>
                         <div className='flex space-x-4'>
                             <button className={progress ? 'border-b border-blue-500 pb-1 text-lg font-semibold text-blue-700' : 'text-gray-500'}
                                 onClick={toggleProgress}>In progress</button>
@@ -106,49 +102,46 @@ function Tasks() {
                             <button className={finished ? 'border-b border-blue-500 pb-1 text-lg font-semibold text-blue-700' : 'text-gray-500'}
                                 onClick={toggleFinished}>Finished</button>
                         </div>
-                        <div className='flex items-center border space-x-2 rounded-lg px-2 py-1 '>
-                            <p className=''>{formatterDate}</p>
-                            <CalendarIcon className='h-5' />
-                        </div>
                     </div>
                     {/* in progress template */}
                     {progress ? (
                         <div className='grid grid-cols-3 gap-x-10'>
-                            {categoryRes.map((item) => {
-                                return item.tasks.map((i) => {
+                            {
+                                categoryRes.map((item) => {
+                                    return item.tasks.map((i) => {
 
-                                    return <GetTasks
-                                        category={item.name}
-                                        key={i._id}
-                                        customerName={i.customerName}
-                                        location={i.location.split(',')[0]}
-                                        description={i.description}
-                                        endDate={i.endDate.split('T')[0]}
-                                        technical={taskRes.map((ii) => {
-                                            if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                return ii.techId.name
-
-                                            }
-                                        })}
-                                        ViewTask={<ViewTask
-                                            description={i.description}
-                                            customerName={i.customerName}
-                                            phoneNumber={i.customerPhonenumber}
-                                            address={i.location.split(',')[0]}
-                                            endDate={i.endDate.split('T')[0]}
+                                        return <GetTasks
                                             category={item.name}
-                                            taskId={i._id}
-                                            tech={taskRes.map((ii) => {
+                                            key={i._id}
+                                            customerName={i.customerName}
+                                            location={i.location.split(',')[0]}
+                                            description={i.description}
+                                            endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
+                                            technical={taskRes?.map((ii) => {
                                                 if (i.techId == ii.techId._id && i._id == ii._id) {
                                                     return ii.techId.name
 
                                                 }
                                             })}
-                                        />}
-                                    />
+                                            ViewTask={<ViewTask
+                                                description={i.description}
+                                                customerName={i.customerName}
+                                                phoneNumber={i.customerPhonenumber}
+                                                address={i.location.split(',')[0]}
+                                                endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
+                                                category={item.name}
+                                                taskId={i._id}
+                                                tech={taskRes?.map((ii) => {
+                                                    if (i.techId == ii.techId._id && i._id == ii._id) {
+                                                        return ii.techId.name
 
+                                                    }
+                                                })}
+                                            />}
+                                        />
+
+                                    })
                                 })
-                            })
 
                             }
                         </div>

@@ -1,8 +1,8 @@
 import { CalendarIcon, ChatAltIcon, HomeIcon, LocationMarkerIcon, UserIcon } from '@heroicons/react/outline'
 import React, { useEffect, useState } from 'react'
+import { format } from 'date-fns'
 
 function GetTasks({ customerName, location, description, endDate, category, ViewTask, technical }) {
-    
 
     return (
 
