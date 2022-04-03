@@ -1,167 +1,66 @@
-import React, { useEffect, useState } from 'react'
-import DatePicker from "react-datepicker";
+import React, { useEffect, useState, Fragment, useRef } from 'react'
 import {
     LocationMarkerIcon,
     ChatAltIcon,
     CheckCircleIcon,
-    ExclamationCircleIcon
+    ExclamationCircleIcon,
+    XIcon,
+    PlusCircleIcon
 } from '@heroicons/react/solid'
 import { useRouter } from 'next/router';
-import { format, set } from 'date-fns'
+import { Dialog, Transition } from '@headlessui/react'
+import 'react-date-range/dist/styles.css' // main style file
+import 'react-date-range/dist/theme/default.css' // theme css file
+import { DateRange } from 'react-date-range'
+import { format, parseISO } from 'date-fns'
+
+
 
 function CreateTask() {
-    const router = useRouter()
-    // TaskDetails errors handler
-    const [descriptionErr, setDescriptionErr] = useState("")
-    const [phoneErr, setPhoneErr] = useState("")
-    const [customerErr, setCustomerErr] = useState("")
-    const [streetErr, setStreetErr] = useState("")
-    const [categoryErr, setCategoryErr] = useState("")
-    const [startDateErr, setStartDateErr] = useState("")
-    const [endDateErr, setEndDateErr] = useState("")
-    const [descriptionIconErr, setDescriptionIconErr] = useState(false)
-    const [phoneIconErr, setPhoneIconErr] = useState(false)
-    const [customerIconErr, setCustomerIconErr] = useState(false)
-    const [streetIconErr, setStreetIconErr] = useState(false)
-    const [categoryIconErr, setCategoryIconErr] = useState(false)
-    const [startDateIconErr, setStartDateIconErr] = useState(false)
-    const [endDateIconErr, setEndDateIconErr] = useState(false)
+    // Modal functions
+    const [modal, setModal] = useState(false)
+    const [modal2, setModal2] = useState(false)
+    const [modal3, setModal3] = useState(false)
+
+    const [open, setOpen] = useState(true)
+    const [open2, setOpen2] = useState(true)
+    const [open3, setOpen3] = useState(true)
+
+    const [prog, setProg] = useState(false)
     const [categoryRes, setCategoryRes] = useState([])
-    const [assignedRes, setAssignedRes] = useState([])
-    const [nameOfCateg, setNameOfCateg] = useState([])
+    // Select option
+    const [categId, setCategId] = useState('')
+    const [technical, setTechnical] = useState('')
 
-    // Modal handle states
-    const [modal, setModal] = useState(true)
-    const [next, setNext] = useState(false)
-    const [back1, setBack1] = useState(false)
-    const [back2, setBack2] = useState(false)
-    const [procced, setProcced] = useState(false)
-    const [show, setShow] = useState(true)
-    // Task details Content handle states
-    const [description, setDescription] = useState("")
-    const [phone, setPhone] = useState("")
-    const [customer, setCustomer] = useState("")
-    const [street, setStreet] = useState("")
-    const [apartment, setApartment] = useState("")
-    const [floor, setFloor] = useState("")
-    const [building, setBuilding] = useState("")
+    const cancelButtonRef = useRef(null)
 
-    let address = `${street} , ${apartment} / ${floor} / ${building}`
-
-    // Management Content handle states
-    const [categName, setCategName] = useState("")
-    const [assignName, setAssignName] = useState('')
-    const [assigned, setAssigned] = useState('')
-    const [categ, setCateg] = useState("6234844d79c325a1d9160002")
-    const [assign, setAssign] = useState("")
-    const [sClock, setSClock] = useState("")
-    const [eClock, setEClock] = useState("")
-    // Date handler
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
-    let duration = '1d'
-
-    // Modal Buttons handler
-
+    // Cancel button
     const closeModal = () => {
         setModal(!modal)
     }
-    // Creating task
-    const createTask = async (e) => {
-        e.preventDefault()
-        setDescriptionErr('')
-        setCustomerErr('')
-        setPhoneErr('')
-        setStreetErr('')
-        setCategoryErr('')
-        setStartDateErr('')
-        setEndDateErr('')
-        setEndDateIconErr(false)
-        setStartDateIconErr(false)
-        setCategoryIconErr(false)
-        setStreetIconErr(false)
-        setPhoneIconErr(false)
-        setCustomerIconErr(false)
-        setDescriptionIconErr(false)
-
-        const res = await fetch('http://localhost:8000/api/task', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${localStorage.token}`
-            },
-            body: JSON.stringify({
-                description: description,
-                customerPhonenumber: phone,
-                customerName: customer,
-                location: address,
-                startDate: format(startDate, 'yyyy-MM-dd'),
-                endDate: format(endDate, 'yyyy-MM-dd'),
-                category: categ,
-                duration: duration,
-                techId: assign
-            })
-
-        }).then((r) => r.json())
-        const error = res.errors
-        console.log(error)
-        if (!error) {
-            router.push({
-                pathname: '/'
-            })
-            return
-        } else {
-            if ((error.description || error.customerName || error.phonenumber) && (error.category || error.endDate)) {
-                backModal1()
-            }
-            if ((error.category || error.endDate) && (!error.description || !error.customerName || !error.phonenumber)) {
-                backModal2()
-            }
-            if ((error.description || error.customerName || error.phonenumber) && !(error.category || error.endDate)) {
-                backModal1()
-            }
-            if (error.description) {
-                setDescriptionErr(error.description)
-                setDescriptionIconErr(true)
-
-            }
-            if (error.customerName) {
-                setCustomerErr(error.customerName)
-                setCustomerIconErr(true)
-
-            }
-            if (error.phonenumber) {
-                setPhoneErr(error.phonenumber)
-                setPhoneIconErr(true)
-
-            }
-            if (error.location) {
-                setStreetErr(error.location)
-                setStreetIconErr(true)
-
-            }
-            if (error.category) {
-                setCategoryErr(error.category)
-                setCategoryIconErr(true)
-
-            }
-            if (error.startDate) {
-                setStartDateErr(error.startDate)
-                setStartDateIconErr(true)
-
-            }
-            if (error.endDate) {
-                setEndDateErr(error.endDate)
-                setEndDateIconErr(true)
-
-            }
-        }
+    // Next button
+    const nextHandler = () => {
+        setModal(false)
+        setModal2(!modal2)
     }
-    // Categoty id
-    // let categoryId = categoryRes.map((item) => item._id)
-    // console.log(categoryId)
-    // Get category
-    useEffect(async () => {
+    // Back button
+    const closeModal2 = () => {
+        setModal2(false)
+        setModal(!modal)
+    }
+
+    const proccedHandler = () => {
+        setModal2(false)
+        setModal3(!modal3)
+    }
+
+    const closeModal3 = () => {
+        setModal3(false)
+        setModal2(!modal)
+    }
+
+    // Category Get
+    const getCategory = useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/category', {
             method: 'GET',
             headers: {
@@ -172,344 +71,472 @@ function CreateTask() {
         setCategoryRes(res.categories)
     }, [])
 
-    // Get Technicals
-    useEffect(async () => {
-        const res = await fetch('http://localhost:8000/api/user/technicals', {
-            method: 'GET',
+    // Date selection
+    const [startDate, setStartDate] = useState(new Date())
+    const [endDate, setEndDate] = useState(new Date())
+    const handleSelect = (ranges) => {
+        setStartDate(ranges.selection.startDate)
+        setEndDate(ranges.selection.endDate)
+    }
+
+    const selectionRange = {
+        startDate: startDate,
+        endDate: endDate,
+        key: 'selection',
+    }
+
+    // Task props
+    const [description, setDescription] = useState('')
+    const [phoneNumber, setPhoneNumber] = useState('')
+    const [customerName, setCustomerName] = useState('')
+    const [address, setAddress] = useState('')
+
+    const createTask = async () => {
+        const res = await fetch(`http://localhost:8000/api/task`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'authorization': `Bearer ${localStorage.token}`
             },
-        }).then((t) => t.json()).catch((e) => console.log(e))
-        setAssignedRes(res.data)
-    }, [])
+            body: JSON.stringify({
+                location: address,
+                customerName: customerName,
+                customerPhonenumber: phoneNumber,
+                category: categId,
+                description, description,
+                duration: '1d',
+                startDate: format(startDate, 'yyyy-MM-dd'),
+                endDate: format(endDate, 'yyyy-MM-dd'),
+                techId: technical,
+            })
 
-    // Get category and tech by id
-    useEffect(() => {
-        categoryRes.map((i) => {
-            if (categ == i._id) {
-                setCategName(i.name)
-            }
-            return
-        })
-    }, [])
-    useEffect(() => {
-        assignedRes.map((i) => {
-            if (assign == i._id) {
-                setAssigned(i.name)
-            }
-            return
-        })
-    })
-
-    const toggleNext = () => {
-        setNext(true)
-        setShow(false)
+        }).then((t) => t.json())
+        const error = res.errors
+        if (error) {
+            console.log(error)
+        } else {
+            setProg(!prog)
+            setTimeout(() => {
+                window.location.reload()
+            }, 2000);
+        }
     }
 
-    const proccedModal = () => {
-        setProcced(!procced)
-        setShow(false)
-        setNext(false)
-    }
-
-    const backModal1 = () => {
-        setBack1(!back1)
-        setShow(!show)
-        setNext(false)
-        setProcced(false)
-    }
-
-    const backModal2 = () => {
-        setBack2(!back2)
-        setProcced(!procced)
-        setNext(!next)
-    }
-
-    var firstCateg = categoryRes[0]
-    console.log(firstCateg)
-    useEffect(async () => {
-        const res = await fetch(`http://localhost:8000/api/category/users/${firstCateg}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${localStorage.token}`
-            },
-        }).then((t) => t.json()).catch((e) => console.log(e))
-        setAssignName(res.technicals)
-    }, [firstCateg])
-
-
+    console.log(startDate, endDate)
+    console.log(phoneNumber)
     return (
         <div>
             <button className='button px-5 py-2 border rounded-lg bg-blue-500 text-white' onClick={closeModal}>Create Task</button>
-            <div className={modal ? "fixed z-10 overflow-y-auto top-0 w-full left-0 hidden" : "fixed z-10 overflow-y-auto top-0 w-full left-0"}>
-                <div className="flex items-center justify-center min-height-100vh pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div className="fixed inset-0 transition-opacity">
-                        <div className="absolute inset-0 bg-gray-900 opacity-75" />
+            {modal && (<Transition.Root show={open} as={Fragment}>
+                <Dialog as="div" className="fixed z-30 inset-0 overflow-y-auto" initialFocus={cancelButtonRef} onClose={setModal}>
+                    <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0"
+                            enterTo="opacity-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100"
+                            leaveTo="opacity-0"
+                        >
+                            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                        </Transition.Child>
+
+                        {/* This element is to trick the browser into centering the modal contents. */}
+                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+                            &#8203;
+                        </span>
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                            enterTo="opacity-100 translate-y-0 sm:scale-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        >
+                            {/* change width */}
+                            <div className="relative inline-block align-bottom bg-gray-50 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-4/5">
+                                <div className='grid grid-cols-2'>
+                                    <div>
+                                        {/* Change hieght */}
+                                        <div className="bg-gray-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-16">
+                                            <div className="flex items-center">
+                                                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                                                    <PlusCircleIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
+                                                </div>
+                                                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                                    <Dialog.Title as="h3" className="text-xl font-semibold leading-6 text-gray-900">
+                                                        Create task
+                                                    </Dialog.Title>
+                                                </div>
+                                            </div>
+                                            <div className='mt-5 flex justify-between'>
+                                                <div className='flex space-x-2 items-center'>
+                                                    <h1 className='border-2 border-blue-500 px-2 py-[.5px] rounded-full'>1</h1>
+                                                    <h1 className='text-lg text-blue-500'>Task details</h1>
+                                                </div>
+                                                <div className='border-t w-16 mt-4 pt-2 border-gray-700' />
+
+                                                <div className='flex space-x-2 items-center'>
+                                                    <h1 className='border-2 border-gray-500 px-2 py-[.5px] rounded-full'>2</h1>
+                                                    <h1 className='text-lg text-gray-500'>Management</h1>
+                                                </div>
+                                                <div className='border-t mt-4 w-16 pt-2 border-gray-700' />
+
+                                                <div className='flex space-x-2 items-center'>
+                                                    <h1 className='border-2 border-gray-500 px-2 py-[.5px] rounded-full'>3</h1>
+                                                    <h1 className='text-lg text-gray-500'>Review</h1>
+                                                </div>
+                                            </div>
+                                            {/* Description */}
+                                            <div className='mt-5'>
+                                                <h1 className='text-lg font-semibold'>Description</h1>
+                                                <textarea type="text" value={description} onChange={(e) => { setDescription(e.target.value) }} title="Scroll down" className="w-full shadow-md bg-white p-2 scrollbar-hide mt-2 mb-3 text-lg rounded-lg pl-3" rows="3" cols="50"></textarea>
+                                            </div>
+                                            {/* Customer name, phoneNumber */}
+                                            <div className='mt-5 grid grid-cols-2'>
+                                                <div>
+                                                    <h1 className='text-lg font-semibold'>Customer Name</h1>
+                                                    <input className='pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2' value={customerName} type="text" onChange={(e) => setCustomerName(e.target.value)} />
+
+                                                </div>
+                                                <div>
+                                                    <h1 className='text-lg font-semibold'>Phone number</h1>
+                                                    <input className='pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2' value={phoneNumber} type="text" onChange={(e) => { setPhoneNumber(e.target.value) }} />
+
+                                                </div>
+                                            </div>
+                                            {/* Address */}
+                                            <div className='mt-5'>
+                                                <h1 className='text-lg font-semibold'>Address</h1>
+                                                <input className='w-full pb-3 text-lg bg-white rounded-lg pl-3 shadow-md mt-2' value={address} type="text" onChange={(e) => { setAddress(e.target.value) }} />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    {/* Map */}
+                                    <div className='m-10'>
+                                        <img src="/GoogleMapTA.jpg" alt="" />
+                                    </div>
+                                </div>
+                                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                    <button
+                                        type="button"
+                                        className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
+                                        onClick={nextHandler}
+                                    >
+                                        Next
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                        onClick={closeModal}
+                                        ref={cancelButtonRef}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </Transition.Child>
                     </div>
-                    <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-                    <div className="inline-block align-center bg-gray-50 rounded-lg text-left shadow-xl transform 
-                     transition-all w-full h-screen sm:align-middle mt-16 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                        <h1 className='h1 text-3xl my-2 mt-5 mx-5'>Create a new task</h1>
-                        <div className='grid grid-cols-2'>
-                            {/* Form */}
+                </Dialog>
+            </Transition.Root >)}
+            {modal2 && (<Transition.Root show={open2} as={Fragment}>
+                <Dialog as="div" className="fixed z-30 inset-0 overflow-y-auto" initialFocus={cancelButtonRef} onClose={setModal2}>
+                    <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0"
+                            enterTo="opacity-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100"
+                            leaveTo="opacity-0"
+                        >
+                            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                        </Transition.Child>
 
-                            {/* Task Details */}
-                            {show ? (
-                                <div className="bg-gray-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                    <div className='flex space-x-3 items-center mb-5'>
-                                        <div className='flex space-x-3'>
-                                            <h1 className=' border rounded-full border-blue-900 px-2'>1</h1>
-                                            <h1 className='text-xl text-blue-500'>Task details</h1>
+                        {/* This element is to trick the browser into centering the modal contents. */}
+                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+                            &#8203;
+                        </span>
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                            enterTo="opacity-100 translate-y-0 sm:scale-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        >
+                            {/* change width */}
+                            <div className="relative inline-block align-bottom bg-gray-50 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-4/5">
+                                <div>
+                                    {/* Change hieght */}
+                                    <div className="bg-gray-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-10">
+                                        <div className="flex items-center">
+                                            <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                                                <PlusCircleIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
+                                            </div>
+                                            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                                <Dialog.Title as="h3" className="text-xl font-semibold leading-6 text-gray-900">
+                                                    Create task
+                                                </Dialog.Title>
+                                            </div>
                                         </div>
-                                        <div className='border-b w-28 pt-2 border-gray-700' />
-                                        <div className='flex space-x-3'>
-                                            <h1 className='border rounded-full border-blue-900 px-2'>2</h1>
-                                            <h1 className='text-xl text-gray-500'>Mangement</h1>
-                                        </div>
-                                        <div className='border-b w-28 pt-2 border-gray-700' />
-                                        <div className='flex space-x-3'>
-                                            <h1 className='border rounded-full border-blue-900 px-2'>3</h1>
-                                            <h1 className='text-xl text-gray-500'>Review</h1>
-                                        </div>
-                                    </div>
-                                    <form action="">
-                                        <div className='flex space-x-5'>
-                                            <label className='h1'>Desctiption</label>
+                                        <div className='mt-5 flex space-x-5'>
                                             <div className='flex space-x-2 items-center'>
-                                                <ExclamationCircleIcon className={descriptionIconErr ? 'h-4 text-red-500' : 'hidden'} />
-                                                <h1 className='text-s font-extralight text-red-500'>{descriptionErr}</h1>
+                                                <CheckCircleIcon className='h-6 text-blue-500' />
+                                                <h1 className='text-lg text-blue-600'>Task details</h1>
                                             </div>
-                                        </div>
-                                        <textarea type="text" value={description} onChange={(e) => { setDescription(e.target.value) }} title="Scroll down" className="w-full shadow-md bg-white p-2 scrollbar-hide mt-2 mb-3 text-lg rounded-lg pl-3" rows="3" cols="50"></textarea>
+                                            <div className='border-t w-16 mt-4 pt-2 border-gray-700' />
 
-                                        <div className="flex">
-                                            <div className='flex flex-col flex-grow align-middle'>
-                                                <label className='h1 text-xl pb-3'>Phone number</label>
-                                                <input className='pb-4 text-lg bg-white rounded-lg pl-3 shadow-md' value={phone} type="text" onChange={(e) => { setPhone(e.target.value) }} />
-                                                <div className='flex space-x-2 items-center'>
-                                                    <ExclamationCircleIcon className={phoneIconErr ? 'h-4 text-red-500' : 'hidden'} />
-                                                    <h1 className='text-s font-extralight text-red-500'>{phoneErr}</h1>
-                                                </div>
-                                            </div>
-                                            <div className='flex flex-col flex-grow ml-10 '>
-                                                <label className='h1 text-xl pb-3'>Customer</label>
-                                                <input className='pb-4 text-lg bg-white rounded-lg pl-3 shadow-md' type="text" value={customer} onChange={(e) => { setCustomer(e.target.value) }} />
-                                                <div className='flex space-x-2 items-center'>
-                                                    <ExclamationCircleIcon className={customerIconErr ? 'h-4 text-red-500' : 'hidden'} />
-                                                    <h1 className='text-s font-extralight text-red-500'>{customerErr}</h1>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className='flex flex-col mt-5'>
-                                            <div className='flex space-x-4 items-center'>
-
-                                                <label className='h1 text-xl pb-2'>Street no. / name</label>
-                                                <div className='flex space-x-2 items-center'>
-                                                    <ExclamationCircleIcon className={streetIconErr ? 'h-4 text-red-500' : 'hidden'} />
-                                                    <h1 className='text-s font-extralight text-red-500'>{streetErr}</h1>
-                                                </div>
-                                            </div>
-                                            <input className='pb-4 text-lg bg-white rounded-lg pl-3 shadow-md' type="text" value={street} onChange={(e) => { setStreet(e.target.value) }} />
-                                        </div>
-                                        <div className='flex space-x-5 mt-5'>
-                                            <div>
-                                                <label className='h1 text-xl pb-3'>Apartment</label>
-                                                <input className='pb-4 text-lg bg-white rounded-lg pl-3 mt-3 shadow-md' type="text" value={apartment} onChange={(e) => { setApartment(e.target.value) }} />
-                                            </div>
-                                            <div>
-                                                <label className='h1 text-xl pb-3'>Floor</label>
-                                                <input className='pb-4 text-lg bg-white rounded-lg pl-3 mt-3 shadow-md' type="text" value={floor} onChange={(e) => { setFloor(e.target.value) }} />
-                                            </div>
-                                            <div>
-                                                <label className='h1 text-xl pb-3'>Buildind no.</label>
-                                                <input className='pb-4 text-lg bg-white rounded-lg pl-3 mt-3 shadow-md' type="text" value={building} onChange={(e) => { setBuilding(e.target.value) }} />
-                                            </div>
-                                        </div>
-                                    </form>
-                                    <div className="py-3 text-right flex space-x-5">
-                                        <button className="py-2 px-4 bg-red-500 text-white 
-                                    rounded hover:bg-gray-700 mr-2" onClick={closeModal}> Cancel</button>
-                                        <button className="py-2 px-4 bg-blue-500 text-white 
-                                    rounded hover:bg-blue-700 mr-2" onClick={toggleNext}> Next</button>
-                                    </div>
-
-                                </div>) : null}
-
-                            {/* Management */}
-                            {next ? (
-                                <div className="bg-gray-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                    <div className='flex space-x-3 items-center mb-5'>
-                                        <div className='flex space-x-3'>
-                                            <CheckCircleIcon className='h-7 text-blue-600' />
-                                            <h1 className='text-xl text-blue-700 cursor-pointer' onClick={backModal1}>Task details</h1>
-                                        </div>
-                                        <div className='border-b w-28 pt-2 border-gray-700' />
-                                        <div className='flex space-x-3'>
-                                            <h1 className=' border rounded-full border-blue-900 px-2'>2</h1>
-                                            <h1 className='text-xl text-blue-500'>Mangement</h1>
-                                        </div>
-                                        <div className='border-b w-28 pt-2 border-gray-700' />
-                                        <div className='flex space-x-3'>
-                                            <h1 className=' border rounded-full border-blue-900 px-2'>3</h1>
-                                            <h1 className='text-xl text-gray-500'>Review</h1>
-                                        </div>
-                                    </div>
-                                    <form action="">
-                                        <div className='flex flex-col'>
                                             <div className='flex space-x-2 items-center'>
-                                                <label className='h1 pb-3'>Categories</label>
-                                                <ExclamationCircleIcon className={categoryIconErr ? 'h-4 text-red-500' : 'hidden'} />
-                                                <h1 className='text-s font-extralight text-red-500'>{categoryErr}</h1>
+                                                <h1 className='border-2 border-blue-500 px-2 py-[.5px] rounded-full'>2</h1>
+                                                <h1 className='text-lg text-blue-500'>Management</h1>
                                             </div>
-                                            <select name="" id="" className='pb-5 rounded-lg text-lg mb-5 shadow-md' onChange={(e) => setCateg(e.target.value)} value={categ}>
-                                                <option value="" selected disabled hidden>Choose here</option>
-                                                {
-                                                    categoryRes.map((item) => {
-                                                        return <option value={item._id}>{item.name}</option>
-                                                    })
-                                                }
+                                            <div className='border-t mt-4 w-16 pt-2 border-gray-700' />
 
-
-                                            </select>
+                                            <div className='flex space-x-2 items-center'>
+                                                <h1 className='border-2 border-gray-500 px-2 py-[.5px] rounded-full'>3</h1>
+                                                <h1 className='text-lg text-gray-500'>Review</h1>
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <label className='h1 pb-3'>Assigned to</label>
-                                            <select name="" id="" className='pb-5 rounded-lg text-lg mb-5 shadow-md' onChange={(e) => { setAssign(e.target.value) }} value={assign}>
-                                                <option value="" selected disabled hidden>Choose here</option>
-                                                {
+                                        <div className='flex justify-between'>
+                                            <div>
+                                                {/* Category Select */}
+                                                <div>
+                                                    <h1 className='text-lg text-gray-500 mt-5'>Team</h1>
+                                                    <select onChange={(e) => setCategId(e.target.value)} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-96' >
+                                                        <option value="" selected disabled hidden>Choose here</option>
+                                                        {
+                                                            categoryRes.map((item) => {
+                                                                return <option value={item._id}>{item.name}</option>
+                                                            })
+                                                        }
+                                                    </select>
+                                                </div>
+                                                {/* Technical select */}
+                                                <div>
+                                                    <h1 className='text-lg text-gray-500 mt-5'>Technical</h1>
+                                                    <select onChange={(e) => setTechnical(e.target.value)} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-96' >
+                                                        <option value="" selected disabled hidden>Choose here</option>
+                                                        {
+                                                            categoryRes.map((item) => {
+                                                                if (item._id == categId) {
+                                                                    return item.technicals.map((i) => {
+                                                                        return <option value={i._id}>{i.name}</option>
+                                                                    })
+                                                                }
 
-                                                    assignName.map((i) => {
-                                                        return <option value={i._id}>{i.name}</option>
-                                                    })
-
-                                                }
-                                            </select>
-                                        </div>
-                                        <div className="flex">
-                                            <div className='flex flex-col flex-grow'>
-                                                <label className='h1 text-xl pb-3'>Start Date</label>
-                                                <DatePicker dateFormat='yyyy-MM-dd' className="pb-3 text-lg bg-white rounded-lg pl-3 shadow-md" value={startDate} selected={startDate}
-                                                    onChange={(date = Date) => setStartDate(date)} />
-                                                <div className='flex space-x-2 items-center'>
-                                                    <ExclamationCircleIcon className={startDateIconErr ? 'h-4 text-red-500' : 'hidden'} />
-                                                    <h1 className='text-s font-extralight text-red-500'>{startDateErr}</h1>
+                                                            })
+                                                        }
+                                                    </select>
                                                 </div>
                                             </div>
-                                            <div className='flex flex-col flex-grow'>
-                                                <label className='h1 text-xl pb-3'>End Date</label>
-                                                <DatePicker dateFormat='yyyy-MM-dd' className="pb-3 text-lg bg-white rounded-lg pl-3 shadow-md" value={endDate} selected={endDate}
-                                                    onChange={(date = Date) => setEndDate(date)} />
-                                                <div className='flex space-x-2 items-center'>
-                                                    <ExclamationCircleIcon className={endDateIconErr ? 'h-4 text-red-500' : 'hidden'} />
-                                                    <h1 className='text-s font-extralight text-red-500'>{endDateErr}</h1>
-                                                </div>
+                                            {/* Date pick */}
+                                            <div className=''>
+                                                <h1 className='text-lg text-gray-500 mt-5'>Pick Start date and End date</h1>
+                                                <DateRange
+                                                    direction={'horizontal'}
+                                                    dateDisplayFormat={'yyyy-MM-dd'}
+                                                    months={2}
+                                                    showDateDisplay={false}
+                                                    className='mt-2 rounded-lg w-full'
+                                                    ranges={[selectionRange]}
+                                                    minDate={new Date()}
+                                                    rangeColors={['#FD5B61']}
+                                                    onChange={handleSelect}
+                                                />
+
                                             </div>
                                         </div>
-                                        <div className='hidden my-5 mt-5 space-x-44 mb-10'>
-                                            <div className='flex flex-col'>
-                                                <label className='h1 text-xl pb-3'>From</label>
-                                                <input type="time" min="09:00" max="18:00" required className='shadow-md pb-2 text-xl bg-white rounded-lg px-8 mt-3 text-center' onChange={(e) => { setSClock(e.target.value) }} value={sClock} />
-                                            </div>
-                                            <div className='flex flex-col'>
-                                                <label className='h1 text-xl pb-3'>To</label>
-                                                <input type="time" min="09:00" max="18:00" required className='shadow-md pb-2 text-xl bg-white rounded-lg px-8 mt-3 text-center' onChange={(e) => { setEClock(e.target.value) }} value={eClock} />
-                                            </div>
-                                        </div>
-                                    </form>
-                                    <div className="py-3 text-right flex space-x-5 mt-40">
-                                        <button className="py-2 px-4 bg-red-500 text-white 
-                                    rounded hover:bg-gray-700 mr-2" onClick={backModal1}> Back</button>
-                                        <button className="py-2 px-4 bg-blue-500 text-white 
-                                    rounded hover:bg-blue-700 mr-2" onClick={proccedModal}> Procced</button>
+
                                     </div>
+                                    <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                        <button
+                                            type="button"
+                                            onClick={proccedHandler}
+                                            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
+                                        >
+                                            Procced
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                            onClick={closeModal2}
+                                            ref={cancelButtonRef}
+                                        >
+                                            Back
+                                        </button>
+                                    </div>
+                                </div>
 
-                                </div>) : null}
+                            </div>
+                        </Transition.Child>
+                    </div>
+                </Dialog>
+            </Transition.Root >)
+            }
+            {modal3 && (<Transition.Root show={open3} as={Fragment}>
+                <Dialog as="div" className="fixed z-30 inset-0 overflow-y-auto" initialFocus={cancelButtonRef} onClose={setModal3}>
+                    <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0"
+                            enterTo="opacity-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100"
+                            leaveTo="opacity-0"
+                        >
+                            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                        </Transition.Child>
 
-                            {/* Review and push the task */}
-                            {procced ? (
-                                <form method='POST'>
-                                    <div className="bg-gray-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                        <div className='flex space-x-3 items-center mb-5'>
-                                            <div className='flex space-x-3'>
-                                                <CheckCircleIcon className='h-7 text-blue-600' />
-                                                <h1 className='text-xl text-blue-700 cursor-pointer' onClick={backModal1}>Task details</h1>
-                                            </div>
-                                            <div className='border-b w-28 pt-2 border-gray-700' />
-                                            <div className='flex space-x-3'>
-                                                <CheckCircleIcon className='h-7 text-blue-600' />
-                                                <h1 className='text-xl text-blue-500 cursor-pointer' onClick={backModal2}>Mangement</h1>
-                                            </div>
-                                            <div className='border-b w-28 pt-2 border-gray-700' />
-                                            <div className='flex space-x-3'>
-                                                <h1 className=' border rounded-full border-blue-900 px-2'>3</h1>
-                                                <h1 className='text-xl text-blue-500'>Review</h1>
-                                            </div>
-                                        </div>
-                                        <form action="">
-                                            <div className='flex items-center space-x-2'>
-                                                <h1 className='h1'>Step 1</h1>
-                                                <h3 className='h3 text-gray-500' onClick={backModal1}>(Edit)</h3>
-                                            </div>
-                                            <div className='flex'>
-                                                <div className='flex flex-col flex-grow'>
-                                                    <h1 className='text-gray-700 text-lg mt-5'>Phone Number</h1>
-                                                    <h2 className='font-semibold mt-2'>{phone}</h2>
+                        {/* This element is to trick the browser into centering the modal contents. */}
+                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+                            &#8203;
+                        </span>
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                            enterTo="opacity-100 translate-y-0 sm:scale-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        >
+                            {/* change width */}
+                            <div className="relative inline-block align-bottom bg-gray-50 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-4/5">
+                                <div className='grid grid-cols-2'>
+                                    <div>
+                                        {/* Change hieght */}
+                                        <div className="bg-gray-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-10">
+                                            <div className="flex items-center">
+                                                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                                                    <PlusCircleIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
                                                 </div>
-                                                <div className='flex flex-col flex-grow'>
-                                                    <h1 className='text-gray-700 text-lg mt-5'>Customer name</h1>
-                                                    <h2 className='font-semibold mt-2'>{customer}</h2>
+                                                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                                    <Dialog.Title as="h3" className="text-xl font-semibold leading-6 text-gray-900">
+                                                        Create task
+                                                    </Dialog.Title>
                                                 </div>
                                             </div>
+                                            <div className='mt-5 flex justify-between'>
+                                                <div className='flex space-x-2 items-center'>
+                                                    <CheckCircleIcon className='h-6 text-blue-500' />
+                                                    <h1 className='text-lg text-blue-600'>Task details</h1>
+                                                </div>
+                                                <div className='border-t w-16 mt-4 pt-2 border-gray-700' />
+
+                                                <div className='flex space-x-2 items-center'>
+                                                    <CheckCircleIcon className='h-6 text-blue-500' />
+                                                    <h1 className='text-lg text-blue-500'>Management</h1>
+                                                </div>
+                                                <div className='border-t mt-4 w-16 pt-2 border-gray-700' />
+
+                                                <div className='flex space-x-2 items-center'>
+                                                    <h1 className='border-2 border-blue-500 px-2 py-[.5px] rounded-full'>3</h1>
+                                                    <h1 className='text-lg text-blue-500'>Review</h1>
+                                                </div>
+                                            </div>
+                                            {/* Description */}
                                             <h1 className='text-gray-700 text-lg mt-5'>Description</h1>
                                             <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-hide' title="Scroll down">
                                                 {description}
                                             </div>
-                                            <div className='flex items-center space-x-2'>
-                                                <h1 className='h1'>Step 2</h1>
-                                                <h3 className='h3 text-gray-500' onClick={backModal2}>(Edit)</h3>
-                                            </div>
-                                            <div className='flex'>
-                                                <div className='flex flex-col flex-grow'>
-                                                    <h1 className='text-gray-700 text-lg mt-5'>Deadline</h1>
-                                                    <h2 className='font-semibold mt-2'>{endDate.toString().slice(4, 15)}</h2>
+                                            {/* Customer name & phone number */}
+                                            <div className='mt-5 grid grid-cols-2'>
+                                                <div>
+                                                    <h1 className='text-gray-700 text-lg mt-5'>Customer Name</h1>
+                                                    <h1 className='text-lg font-semibold'>{customerName}</h1>
+
                                                 </div>
-                                                <div className='flex flex-col flex-grow'>
-                                                    <h1 className='text-gray-700 text-lg mt-5'>category</h1>
-                                                    <h2 className='font-semibold mt-2'>{categName}</h2>
+                                                <div>
+                                                    <h1 className='text-gray-700 text-lg mt-5'>Phone number</h1>
+                                                    <h1 className='text-lg font-semibold'>{phoneNumber}</h1>
+
                                                 </div>
                                             </div>
-                                            <div className='flex flex-col flex-grow mb-2'>
-                                                <h1 className='text-gray-700 text-lg mt-5'>Assigned to</h1>
-                                                <h2 className='font-semibold mt-2'>{assigned}</h2>
+                                            {/* Team and technical */}
+                                            <div className='mt-5 grid grid-cols-2'>
+                                                <div>
+                                                    <h1 className='text-gray-700 text-lg mt-5'>Team</h1>
+                                                    <h1 className='text-lg font-semibold'>{
+                                                        categoryRes.map((item) => {
+                                                            if (item._id == categId) {
+                                                                return item.name
+                                                            }
+                                                        })
+                                                    }</h1>
+
+                                                </div>
+                                                <div>
+                                                    <h1 className='text-gray-700 text-lg mt-5'>Technical</h1>
+                                                    <h1 className='text-lg font-semibold'>{
+                                                        categoryRes.map((item) => {
+                                                            return item.technicals.map((i) => {
+                                                                if (i._id == technical) {
+                                                                    return i.name
+                                                                }
+                                                            })
+                                                        })
+                                                    }</h1>
+
+                                                </div>
                                             </div>
-                                        </form>
-                                        <div className="py-3 text-right flex space-x-5">
-                                            <button className="py-2 px-4 bg-red-500 text-white 
-                                rounded hover:bg-gray-700 mr-2 " onClick={backModal2}> Back</button>
-                                            <button className="py-2 px-4 bg-blue-500 text-white 
-                                rounded hover:bg-blue-700 mr-2" onClick={createTask}> Create</button>
+                                            {/* Start date and end Date */}
+                                            <div className='mt-5 grid grid-cols-2'>
+                                                <div>
+                                                    <h1 className='text-gray-700 text-lg mt-5'>Start date</h1>
+                                                    <h1 className='text-lg font-semibold'>{format(startDate, 'dd/MMMM/yyyy')}</h1>
+                                                </div>
+                                                <div>
+                                                    <h1 className='text-gray-700 text-lg mt-5'>End date</h1>
+                                                    <h1 className='text-lg font-semibold'>{format(endDate, 'dd/MMMM/yyyy')}</h1>
+                                                </div>
+                                            </div>
                                         </div>
-
                                     </div>
-                                </form>
-                            ) : null}
-
-                            {back1 ? (!show) : null}
-
-                            {back2 ? (!next) : null}
-
-
-
-                            {/* col-2 map */}
-                            <div>
-                                <img src="/GoogleMapTA.jpg" alt="" className='w-5/6' />
+                                    {/* Map */}
+                                    <div className='m-10'>
+                                        <img src="/GoogleMapTA.jpg" alt="" />
+                                    </div>
+                                </div>
+                                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                    {
+                                        prog ? (<button
+                                            type="button"
+                                            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                        >
+                                            <h1 className='animate-spin'></h1>
+                                            Loading...
+                                        </button>) : (
+                                            <button
+                                                type="button"
+                                                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                                onClick={createTask}
+                                            >
+                                                Create
+                                            </button>
+                                        )
+                                    }
+                                    <button
+                                        type="button"
+                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                        onClick={closeModal3}
+                                        ref={cancelButtonRef}
+                                    >
+                                        Back
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        </Transition.Child>
                     </div>
-                </div>
-            </div >
+                </Dialog>
+            </Transition.Root >)
+            }
         </div >
     )
 }

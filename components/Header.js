@@ -6,7 +6,7 @@ import {
     ChevronDownIcon,
 } from '@heroicons/react/solid'
 
-function Header({ islogged, headerView }) {
+function Header({ islogged }) {
     const router = useRouter();
     // Viewing profile modal
     const [view, setView] = useState(false);
@@ -132,7 +132,7 @@ function Header({ islogged, headerView }) {
     }, [displayEmail, displayName])
 
     return (
-        <header className={headerView ? 'sticky top-0 z-20 grid grid-cols-3 bg-white py-5 px-5 shadow-md md:px-10 items-center' : 'hidden'}>
+        <header className='sticky top-0 z-20 grid grid-cols-3 bg-white py-5 px-5 shadow-md md:px-10 items-center'>
             {/* Left Logo / name */}
             <div>
                 <h3 className='h3' onClick={homeHandler}>Tracking information system</h3>
