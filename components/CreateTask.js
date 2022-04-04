@@ -13,8 +13,8 @@ import 'react-date-range/dist/styles.css' // main style file
 import 'react-date-range/dist/theme/default.css' // theme css file
 import { DateRange } from 'react-date-range'
 import { format, parseISO } from 'date-fns'
-
-
+import Map, { Marker, Popup } from 'react-map-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 function CreateTask() {
     // Errors
@@ -153,6 +153,27 @@ function CreateTask() {
         }
     }
 
+    // map Functions
+    // save search 
+    const [mapSearchRes, setMapSearchRes] = useState([])
+    // coordinates
+    const [viewport, setViewport] = useState({
+        longitude: '31.23944',
+        latitude: '30.05611',
+        zoom: 9
+    })
+
+    // fetch from api
+    const getCoordinates = useEffect(async () => {
+        const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${address}.json?access_token=pk.eyJ1Ijoia2FyaW1raGFsZWRlbG1hd2UiLCJhIjoiY2wxa3l4bDRjMDN6ZDNjb2JnbWpzbGVncSJ9.Hr7IeGn4060vCiHaeJH1Zw`, {
+            method: 'GET',
+        }).then((t) => t.json())
+        setMapSearchRes(res.features)
+    }, [address])
+    // coordinates for marker which will post to create task
+    const [coord, setCoord] = useState('')
+
+    console.log(coord)
     return (
         <div>
             <button className='button px-5 py-2 border rounded-lg bg-blue-500 text-white' onClick={closeModal}>Create Task</button>
@@ -263,18 +284,46 @@ function CreateTask() {
                                                     <h1 className='text-lg font-semibold'>Address</h1>
                                                     <ExclamationCircleIcon className={locationError ? 'h-5 text-red-500' : 'hidden'} />
                                                 </div>
-                                                <input className={locationError ? 'w-full pb-3 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'w-full pb-3 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={address} type="text" onChange={(e) => {
+                                                <input className={locationError ? 'w-full pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'w-full pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={address} type="text" onChange={(e) => {
                                                     setAddress(e.target.value)
                                                     // hide valdiation while typing
                                                     setLocationError(false)
                                                 }} />
+                                                {/* Search location */}
+                                                <div className='flex flex-col items-start'>
+                                                    {mapSearchRes.map((item) => {
+                                                        if (address == '') {
+                                                            return
+                                                        } else {
+                                                            return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
+                                                            text-blue-700' onClick={() => {
+                                                                    setViewport({
+                                                                        longitude: item.center[0],
+                                                                        latitude: item.center[1],
+                                                                        zoom: 9
+                                                                    })
+                                                                }}>{item.place_name}</button>
+                                                        }
+                                                    })}
+                                                </div>
                                             </div>
                                         </div>
 
                                     </div>
                                     {/* Map */}
                                     <div className='m-10'>
-                                        <img src="/GoogleMapTA.jpg" alt="" />
+                                        <Map
+                                            mapStyle="mapbox://styles/mapbox/streets-v9"
+                                            mapboxAccessToken={process.env.mapbox_key}
+                                            {...viewport}
+                                            onDrag={(nextViewport) => setViewport(nextViewport)}
+                                            onDblClick={(nextViewport) => setCoord(nextViewport)}
+                                            onWheel={(nextViewport) => setViewport(nextViewport)}
+                                        >
+                                            <Marker longitude={coord ? (coord.lngLat.lng) : null} latitude={coord ? (coord.lngLat.lat) : null} anchor="right" color='#FF0000'>
+                                            </Marker>
+                                        </Map>
+                                        <h1 className='text-lg font-semibold text-red-800'>Double click to mark a location</h1>
                                     </div>
                                 </div>
                                 <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
