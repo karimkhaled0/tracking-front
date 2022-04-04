@@ -17,22 +17,32 @@ import { format, parseISO } from 'date-fns'
 
 
 function CreateTask() {
+    // Errors
+    const [locationError, setLocationError] = useState(false)
+    const [categoryError, setCategoryError] = useState(false)
+    const [customerNameError, setCustomerNameError] = useState(false)
+    const [phoneNumberError, setPhoneNumberError] = useState(false)
+    const [descriptionError, setDescriptionError] = useState(false)
+
+
+
     // Modal functions
     const [modal, setModal] = useState(false)
     const [modal2, setModal2] = useState(false)
     const [modal3, setModal3] = useState(false)
-
     const [open, setOpen] = useState(true)
     const [open2, setOpen2] = useState(true)
     const [open3, setOpen3] = useState(true)
+    const cancelButtonRef = useRef(null)
 
+    // Loading animation for create button
     const [prog, setProg] = useState(false)
+    // categories
     const [categoryRes, setCategoryRes] = useState([])
     // Select option
     const [categId, setCategId] = useState('')
     const [technical, setTechnical] = useState('')
 
-    const cancelButtonRef = useRef(null)
 
     // Cancel button
     const closeModal = () => {
@@ -48,18 +58,19 @@ function CreateTask() {
         setModal2(false)
         setModal(!modal)
     }
-
+    // Procceed
     const proccedHandler = () => {
         setModal2(false)
         setModal3(!modal3)
     }
 
+    // Review Modal
     const closeModal3 = () => {
         setModal3(false)
         setModal2(!modal)
     }
 
-    // Category Get
+    //  Categories (GET)
     const getCategory = useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/category', {
             method: 'GET',
@@ -78,19 +89,19 @@ function CreateTask() {
         setStartDate(ranges.selection.startDate)
         setEndDate(ranges.selection.endDate)
     }
-
     const selectionRange = {
         startDate: startDate,
         endDate: endDate,
         key: 'selection',
     }
 
-    // Task props
+    // Task body
     const [description, setDescription] = useState('')
     const [phoneNumber, setPhoneNumber] = useState('')
     const [customerName, setCustomerName] = useState('')
     const [address, setAddress] = useState('')
 
+    // Create task function (POST)
     const createTask = async () => {
         const res = await fetch(`http://localhost:8000/api/task`, {
             method: 'POST',
@@ -111,19 +122,37 @@ function CreateTask() {
             })
 
         }).then((t) => t.json())
+        // Errors handler and valdiation
         const error = res.errors
-        if (error) {
-            console.log(error)
-        } else {
+        if (!error) {
             setProg(!prog)
             setTimeout(() => {
                 window.location.reload()
             }, 2000);
+        } else {
+            if (error.location) {
+                setModal(!modal)
+                setLocationError(true)
+            }
+            if (error.category) {
+                setModal2(!modal2)
+                setCategoryError(true)
+            }
+            if (error.customerName) {
+                setModal(!modal)
+                setCustomerNameError(true)
+            }
+            if (error.phonenumber) {
+                setModal(!modal)
+                setPhoneNumberError(true)
+            }
+            if (error.description) {
+                setModal(!modal)
+                setDescriptionError(true)
+            }
         }
     }
 
-    console.log(startDate, endDate)
-    console.log(phoneNumber)
     return (
         <div>
             <button className='button px-5 py-2 border rounded-lg bg-blue-500 text-white' onClick={closeModal}>Create Task</button>
@@ -191,26 +220,54 @@ function CreateTask() {
                                             </div>
                                             {/* Description */}
                                             <div className='mt-5'>
-                                                <h1 className='text-lg font-semibold'>Description</h1>
-                                                <textarea type="text" value={description} onChange={(e) => { setDescription(e.target.value) }} title="Scroll down" className="w-full shadow-md bg-white p-2 scrollbar-hide mt-2 mb-3 text-lg rounded-lg pl-3" rows="3" cols="50"></textarea>
+                                                <div className='flex items-center space-x-2'>
+                                                    <h1 className='text-lg font-semibold'>Description</h1>
+                                                    <ExclamationCircleIcon className={descriptionError ? 'h-5 text-red-500' : 'hidden'} />
+                                                </div>
+                                                <textarea type="text" value={description} onChange={(e) => {
+                                                    setDescription(e.target.value)
+                                                    // hide valdiation while typing
+                                                    setDescriptionError(false)
+                                                }} title="Scroll down" className={descriptionError ? "w-full shadow-md bg-white p-2 scrollbar-hide mt-2 mb-3 text-lg rounded-lg pl-3 border border-red-500" : "w-full shadow-md bg-white p-2 scrollbar-hide mt-2 mb-3 text-lg rounded-lg pl-3"} rows="3" cols="50"></textarea>
                                             </div>
                                             {/* Customer name, phoneNumber */}
                                             <div className='mt-5 grid grid-cols-2'>
                                                 <div>
-                                                    <h1 className='text-lg font-semibold'>Customer Name</h1>
-                                                    <input className='pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2' value={customerName} type="text" onChange={(e) => setCustomerName(e.target.value)} />
+                                                    <div className='flex items-center space-x-2'>
+                                                        <h1 className='text-lg font-semibold'>Customer name</h1>
+                                                        <ExclamationCircleIcon className={customerNameError ? 'h-5 text-red-500' : 'hidden'} />
+                                                    </div>
+                                                    <input className={customerNameError ? 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={customerName} type="text" onChange={(e) => {
+                                                        setCustomerName(e.target.value)
+                                                        // hide valdiation while typing
+                                                        setCustomerNameError(false)
+                                                    }} />
 
                                                 </div>
                                                 <div>
-                                                    <h1 className='text-lg font-semibold'>Phone number</h1>
-                                                    <input className='pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2' value={phoneNumber} type="text" onChange={(e) => { setPhoneNumber(e.target.value) }} />
+                                                    <div className='flex items-center space-x-2'>
+                                                        <h1 className='text-lg font-semibold'>Phone number</h1>
+                                                        <ExclamationCircleIcon className={phoneNumberError ? 'h-5 text-red-500' : 'hidden'} />
+                                                    </div>
+                                                    <input className={phoneNumberError ? 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={phoneNumber} type="text" onChange={(e) => {
+                                                        setPhoneNumber(e.target.value)
+                                                        // hide valdiation while typing
+                                                        setPhoneNumberError(false)
+                                                    }} />
 
                                                 </div>
                                             </div>
                                             {/* Address */}
                                             <div className='mt-5'>
-                                                <h1 className='text-lg font-semibold'>Address</h1>
-                                                <input className='w-full pb-3 text-lg bg-white rounded-lg pl-3 shadow-md mt-2' value={address} type="text" onChange={(e) => { setAddress(e.target.value) }} />
+                                                <div className='flex items-center space-x-2'>
+                                                    <h1 className='text-lg font-semibold'>Address</h1>
+                                                    <ExclamationCircleIcon className={locationError ? 'h-5 text-red-500' : 'hidden'} />
+                                                </div>
+                                                <input className={locationError ? 'w-full pb-3 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'w-full pb-3 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={address} type="text" onChange={(e) => {
+                                                    setAddress(e.target.value)
+                                                    // hide valdiation while typing
+                                                    setLocationError(false)
+                                                }} />
                                             </div>
                                         </div>
 
@@ -307,8 +364,15 @@ function CreateTask() {
                                             <div>
                                                 {/* Category Select */}
                                                 <div>
-                                                    <h1 className='text-lg text-gray-500 mt-5'>Team</h1>
-                                                    <select onChange={(e) => setCategId(e.target.value)} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-96' >
+                                                    <div className='flex items-center space-x-2 mt-5'>
+                                                        <h1 className='text-lg text-gray-500'>Team</h1>
+                                                        <ExclamationCircleIcon className={categoryError ? 'h-5 text-red-500' : 'hidden'} />
+                                                    </div>
+                                                    <select onChange={(e) => {
+                                                        setCategId(e.target.value)
+                                                        // hide valdiation while typing
+                                                        setCategoryError(false)
+                                                    }} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-96' >
                                                         <option value="" selected disabled hidden>Choose here</option>
                                                         {
                                                             categoryRes.map((item) => {
