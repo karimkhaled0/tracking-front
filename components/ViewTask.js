@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 import {
   LocationMarkerIcon,
   ChatAltIcon,
@@ -9,6 +9,9 @@ import {
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationIcon } from '@heroicons/react/outline'
 import { useRouter } from 'next/router';
+import Map, { Marker, Popup } from 'react-map-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
 
 function ViewTask({ description, customerName, phoneNumber, address, category, tech, endDate, taskId }) {
   const [view, setView] = useState(false)
@@ -39,10 +42,34 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
     setModal2(!modal2)
   }
   const closeModal = () => {
+    setViewport({
+      longitude: coordinate.long,
+      latitude: coordinate.lat,
+      zoom: coordinate.zoom
+    })
     setModal(!modal)
     setHeaderViewd(!headerViewd)
 
   }
+
+  // Get task
+  const [coordinate, setCoordinate] = useState({})
+  const getTask = useEffect(async () => {
+    const res = await fetch(`http://localhost:8000/api/task/${taskId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': `Bearer ${localStorage.token}`
+      },
+    }).then((t) => t.json()).catch((e) => console.log(e))
+    setCoordinate(res.task.coordinates)
+  }, [customerName])
+
+  const [viewport, setViewport] = useState({
+    longitude: 31,
+    latitude: 29,
+    zoom: 10
+  })
   return (
     <div>
       <button className='border shadow-md active:scale-95 transition transform ease-out 
@@ -220,7 +247,15 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
                     </div>
                     {/* Map */}
                     <div className='m-10'>
-                      <img src="/GoogleMapTA.jpg" alt="" />
+                      <Map
+                        mapStyle="mapbox://styles/mapbox/streets-v9"
+                        mapboxAccessToken={process.env.mapbox_key}
+                        onWheel={(nextViewport) => setViewport(nextViewport)}
+                        {...viewport}
+                      >
+                        <Marker longitude={coordinate ? (coordinate.long) : null} latitude={coordinate ? (coordinate.lat) : null} anchor="right" color='#FF0000'>
+                        </Marker>
+                      </Map>
                     </div>
                   </div>
                 </div>

@@ -178,6 +178,7 @@ function Teams() {
                         </div>
                         {/* Tech's names */}
                         <div className='text-gray-500'>
+                            {console.log(i.technicals.length)}
                             <h1 className='text-xl'>{
                                 i.technicals.length > 3 ? (
                                     `${i.technicals[0].name.charAt(0).toUpperCase() + i.technicals[0].name.slice(1)}, 

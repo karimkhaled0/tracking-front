@@ -119,6 +119,11 @@ function CreateTask() {
                 startDate: format(startDate, 'yyyy-MM-dd'),
                 endDate: format(endDate, 'yyyy-MM-dd'),
                 techId: technical,
+                coordinates: {
+                    long: coord.lng,
+                    lat: coord.lat,
+                    zoom: 10
+                }
             })
 
         }).then((t) => t.json())
@@ -160,11 +165,12 @@ function CreateTask() {
     const [viewport, setViewport] = useState({
         longitude: '31.23944',
         latitude: '30.05611',
-        zoom: 9
+        zoom: 15
     })
 
     // fetch from api
     const getCoordinates = useEffect(async () => {
+
         const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${address}.json?access_token=pk.eyJ1Ijoia2FyaW1raGFsZWRlbG1hd2UiLCJhIjoiY2wxa3l4bDRjMDN6ZDNjb2JnbWpzbGVncSJ9.Hr7IeGn4060vCiHaeJH1Zw`, {
             method: 'GET',
         }).then((t) => t.json())
@@ -173,7 +179,16 @@ function CreateTask() {
     // coordinates for marker which will post to create task
     const [coord, setCoord] = useState('')
 
-    console.log(coord)
+    const getAddress = useEffect(async () => {
+        const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${coord.lng},${coord.lat}.json?access_token=pk.eyJ1Ijoia2FyaW1raGFsZWRlbG1hd2UiLCJhIjoiY2wxa3l4bDRjMDN6ZDNjb2JnbWpzbGVncSJ9.Hr7IeGn4060vCiHaeJH1Zw`, {
+            method: 'GET',
+        }).then((t) => t.json())
+        if ((res.query[0] && res.query[1]) == 'undefined') {
+            setAddress('')
+        } else {
+            setAddress(res.features[0].place_name)
+        }
+    }, [coord])
     return (
         <div>
             <button className='button px-5 py-2 border rounded-lg bg-blue-500 text-white' onClick={closeModal}>Create Task</button>
@@ -258,7 +273,7 @@ function CreateTask() {
                                                         <h1 className='text-lg font-semibold'>Customer name</h1>
                                                         <ExclamationCircleIcon className={customerNameError ? 'h-5 text-red-500' : 'hidden'} />
                                                     </div>
-                                                    <input className={customerNameError ? 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={customerName} type="text" onChange={(e) => {
+                                                    <input autoComplete="chrome-off" className={customerNameError ? 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={customerName} type="text" onChange={(e) => {
                                                         setCustomerName(e.target.value)
                                                         // hide valdiation while typing
                                                         setCustomerNameError(false)
@@ -270,7 +285,7 @@ function CreateTask() {
                                                         <h1 className='text-lg font-semibold'>Phone number</h1>
                                                         <ExclamationCircleIcon className={phoneNumberError ? 'h-5 text-red-500' : 'hidden'} />
                                                     </div>
-                                                    <input className={phoneNumberError ? 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={phoneNumber} type="text" onChange={(e) => {
+                                                    <input autoComplete="chrome-off" className={phoneNumberError ? 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={phoneNumber} type="text" onChange={(e) => {
                                                         setPhoneNumber(e.target.value)
                                                         // hide valdiation while typing
                                                         setPhoneNumberError(false)
@@ -284,7 +299,7 @@ function CreateTask() {
                                                     <h1 className='text-lg font-semibold'>Address</h1>
                                                     <ExclamationCircleIcon className={locationError ? 'h-5 text-red-500' : 'hidden'} />
                                                 </div>
-                                                <input className={locationError ? 'w-full pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'w-full pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={address} type="text" onChange={(e) => {
+                                                <input autoComplete={["chrome-off", 'off']} className={locationError ? 'w-full pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2 border border-red-500' : 'w-full pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2'} value={address} type="text" onChange={(e) => {
                                                     setAddress(e.target.value)
                                                     // hide valdiation while typing
                                                     setLocationError(false)
@@ -317,10 +332,10 @@ function CreateTask() {
                                             mapboxAccessToken={process.env.mapbox_key}
                                             {...viewport}
                                             onDrag={(nextViewport) => setViewport(nextViewport)}
-                                            onDblClick={(nextViewport) => setCoord(nextViewport)}
+                                            onDblClick={(nextViewport) => setCoord(nextViewport.lngLat)}
                                             onWheel={(nextViewport) => setViewport(nextViewport)}
                                         >
-                                            <Marker longitude={coord ? (coord.lngLat.lng) : null} latitude={coord ? (coord.lngLat.lat) : null} anchor="right" color='#FF0000'>
+                                            <Marker longitude={coord ? (coord.lng) : null} latitude={coord ? (coord.lat) : null} anchor="right" color='#FF0000'>
                                             </Marker>
                                         </Map>
                                         <h1 className='text-lg font-semibold text-red-800'>Double click to mark a location</h1>
@@ -610,11 +625,24 @@ function CreateTask() {
                                                     <h1 className='text-lg font-semibold'>{format(endDate, 'dd/MMMM/yyyy')}</h1>
                                                 </div>
                                             </div>
+                                            <div>
+                                                <h1 className='text-gray-700 text-lg mt-5'>Address</h1>
+                                                <h1 className='text-lg font-semibold'>{address}</h1>
+                                            </div>
                                         </div>
                                     </div>
                                     {/* Map */}
                                     <div className='m-10'>
-                                        <img src="/GoogleMapTA.jpg" alt="" />
+                                        <Map
+                                            mapStyle="mapbox://styles/mapbox/streets-v9"
+                                            mapboxAccessToken={process.env.mapbox_key}
+                                            {...viewport}
+                                            onWheel={(nextViewport) => setViewport(nextViewport)}
+                                        >
+                                            <Marker longitude={coord ? (coord.lng) : null} latitude={coord ? (coord.lat) : null} anchor="right" color='#FF0000'>
+                                            </Marker>
+                                        </Map>
+                                        <h1 className='text-lg font-semibold text-red-800'>Double click to mark a location</h1>
                                     </div>
                                 </div>
                                 <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">

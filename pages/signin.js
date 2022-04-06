@@ -7,16 +7,16 @@ import { ExclamationCircleIcon } from '@heroicons/react/solid';
 
 
 function Signin() {
-    const [email, setEmail] = useState('');
+    const [loginId, setloginId] = useState('');
     const [password, setPassword] = useState('');
     const [remembered, setRemembered] = useState(false)
     const [user, setUser] = useState(false)
     const [error, setError] = useState("")
 
     // handle errors
-    const [emailErr, setEmailErr] = useState('')
+    const [loginIdErr, setloginIdErr] = useState('')
     const [passwordErr, setPasswordErr] = useState('')
-    const [emailErrIcon, setEmailErrIcon] = useState(false)
+    const [loginIdErrIcon, setloginIdErrIcon] = useState(false)
     const [passwordErrIcon, setPasswordErrIcon] = useState(false)
     const [headerViewd, setHeaderViewd] = useState(true)
 
@@ -27,9 +27,9 @@ function Signin() {
     const router = useRouter()
     // sign in form
     const submitForm = async (e) => {
-        setEmailErr('')
+        setloginIdErr('')
         setPasswordErr('')
-        setEmailErrIcon(false)
+        setloginIdErrIcon(false)
         setPasswordErrIcon(false)
         e.preventDefault()
         const res = await fetch('http://localhost:8000/signin', {
@@ -39,7 +39,7 @@ function Signin() {
                 'authorization': `Bearer ${process.env.LOGTAIL_TOKEN}`
             },
             body: JSON.stringify({
-                email,
+                loginId,
                 password
             })
 
@@ -65,9 +65,9 @@ function Signin() {
             })
             return
         } else {
-            if (error.email) {
-                setEmailErr(error.email)
-                setEmailErrIcon(true)
+            if (error.loginId) {
+                setloginIdErr(error.loginId)
+                setloginIdErrIcon(true)
             }
             if (error.password) {
                 setPasswordErr(error.password)
@@ -89,11 +89,11 @@ function Signin() {
                     <form onSubmit={submitForm} method='POST' className='flex flex-col space-y-5'>
                         <h1 className='h1 text-2xl'>Sign in</h1>
                         <h1 className='text-lg pr-20'>Welcome! Please login to your account</h1>
-                        <h1 className='h1'>Email</h1>
-                        <input type="email" className='input' value={email} placeholder='Enter your email' name={email} onChange={e => setEmail(e.target.value)} />
+                        <h1 className='h1'>loginId</h1>
+                        <input type="loginId" className='input' value={loginId} placeholder='Enter your loginId' name={loginId} onChange={e => setloginId(e.target.value)} />
                         <div className='flex space-x-2 items-center'>
-                            <ExclamationCircleIcon className={emailErrIcon ? 'h-4 text-red-500' : 'hidden'} />
-                            <h1 className='text-s font-extralight text-red-500'>{emailErr}</h1>
+                            <ExclamationCircleIcon className={loginIdErrIcon ? 'h-4 text-red-500' : 'hidden'} />
+                            <h1 className='text-s font-extralight text-red-500'>{loginIdErr}</h1>
                         </div>
                         <h1 className='h1'>Password</h1>
                         <input type="password" className='input' value={password} placeholder='Enter your password' name={password} onChange={e => setPassword(e.target.value)} />

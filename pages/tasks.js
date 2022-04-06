@@ -120,7 +120,9 @@ function Tasks() {
                                             technical={taskRes?.map((ii) => {
                                                 if (i.techId == ii.techId._id && i._id == ii._id) {
                                                     return ii.techId.name
-
+                                                }
+                                                else {
+                                                    return
                                                 }
                                             })}
                                             ViewTask={<ViewTask
@@ -135,6 +137,9 @@ function Tasks() {
                                                     if (i.techId == ii.techId._id && i._id == ii._id) {
                                                         return ii.techId.name
 
+                                                    }
+                                                    else {
+                                                        return
                                                     }
                                                 })}
                                             />}
