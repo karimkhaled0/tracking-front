@@ -124,6 +124,15 @@ function Header({ islogged }) {
             }
         }).then((r) => r.json()).catch((e) => console.log(e))
         if (res.data) {
+            if (res.data.counter == 0) {
+                router.push({
+                    pathname: '/changePass'
+                })
+            }
+        } else {
+            return
+        }
+        if (res.data) {
             setDisplayName(res.data.name)
             setDisplayEmail(res.data.email)
         } else {

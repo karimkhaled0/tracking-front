@@ -17,8 +17,19 @@ function Technicals() {
   const [tech, setTech] = useState(false)
 
   const cancelButtonRef = useRef(null)
-  const modalHandler = () => {
-    setModal(!modal)
+  const modalHandler = async () => {
+    const res = await fetch('http://localhost:8000/api/user/me', {
+      method: 'GET',
+      headers: {
+        'authorization': `Bearer ${localStorage.token}`
+      }
+    }).then((r) => r.json()).catch((e) => console.log(e))
+    if (!res.data.isAdmin) {
+      setModal(false)
+    }
+    else {
+      setModal(true)
+    }
   }
   const adminHandler = () => {
     setAdmin(true)

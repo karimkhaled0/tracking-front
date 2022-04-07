@@ -54,7 +54,7 @@ const Home: NextPage = () => {
         <title>Tracking information system</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Header headerView={true} islogged={user} />
+      <Header islogged={user} />
 
       <main className="">
         {user ? null : (

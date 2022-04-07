@@ -23,9 +23,19 @@ function Teams() {
     const [nameErrIcon, setNameErrIcon] = useState(false)
     const [nameErr, setNameErr] = useState('')
 
-
-    const closeModal = () => {
-        setModal(!modal)
+    const closeModal = async () => {
+        const res = await fetch('http://localhost:8000/api/user/me', {
+            method: 'GET',
+            headers: {
+                'authorization': `Bearer ${localStorage.token}`
+            }
+        }).then((r) => r.json()).catch((e) => console.log(e))
+        if (!res.data.isAdmin) {
+            setModal(false)
+        }
+        else {
+            setModal(true)
+        }
     }
     const cancelButtonRef = useRef(null)
     const [categoryRes, setCategoryRes] = useState([])

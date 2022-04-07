@@ -15,11 +15,25 @@ function Tasks() {
     const [review, setReview] = useState(false)
     const [finished, setFinished] = useState(false)
     const [user, setUser] = useState(false)
-
-    const userCheck = useEffect(() => {
-        if (localStorage.token) {
+    const loggedHandler = useEffect(async () => {
+        const res = await fetch('http://localhost:8000/api/user/me', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${localStorage.token}`
+            }
+        }).then((r) => r.json())
+        const error = res.error
+        if (error == 'Not Authorized') {
+            localStorage.removeItem('token')
+            router.push({
+                pathname: '/signin'
+            })
+        } else {
             setUser(true)
+
         }
+
     }, [])
     // date formatter
 
