@@ -60,7 +60,7 @@ const teams = () => {
 
     // Get technical id
     const getUserId = useEffect(async () => {
-        technicals.map((i) => {
+        technicals?.map((i) => {
             if (i.name == pid.replace(/%20/g, " ")) {
                 return setUserId(i._id)
             }
@@ -115,6 +115,7 @@ const teams = () => {
                             </div>
                             <h1 className='text-xl font-semibold text-blue-600 mt-5'>{adminUserData.name}</h1>
                             <h1 className='text-gray-500 mt-2'>{categoryName}</h1>
+                            <h1 className='text-blue-500'>Admin</h1>
                         </div>
                         <div className='col-span-2 ml-[100px] space-y-5'>
                             <h1 className='text-2xl font-semibold text-gray-600'>Details</h1>
@@ -154,6 +155,7 @@ const teams = () => {
                             </div>
                             <h1 className='text-xl font-semibold text-blue-600 mt-5'>{userData.name}</h1>
                             <h1 className='text-gray-500 mt-2'>{categoryName}</h1>
+                            <h1 className='text-blue-500  mt-2'>Technical</h1>
                             <div className='flex space-x-5 mt-20 ml-7'>
                                 <div className='border-r-2 pr-5 space-y-5 items-center flex flex-col'>
                                     <h1 className='text-gray-500'>Tasks</h1>

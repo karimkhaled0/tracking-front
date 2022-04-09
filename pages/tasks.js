@@ -9,6 +9,25 @@ import ViewTask from '../components/ViewTask'
 
 
 function Tasks() {
+    const router = useRouter();
+
+    const checkAdmin = useEffect(async () => {
+        if (!localStorage.token) {
+            return
+        } else {
+            const res = await fetch('http://localhost:8000/api/user/me', {
+                method: 'GET',
+                headers: {
+                    'authorization': `Bearer ${localStorage.token}`
+                }
+            }).then((r) => r.json()).catch((e) => console.log(e))
+            if (!res.data.isAdmin) {
+                router.push({
+                    pathname: '/notAuthorized'
+                })
+            }
+        }
+    }, [])
     const [categoryRes, setCategoryRes] = useState([])
     const [taskRes, setTaskRes] = useState([])
     const [progress, setProgress] = useState(true)
@@ -53,7 +72,6 @@ function Tasks() {
         setFinished(true)
     }
 
-    const router = useRouter();
     // sign in router if user not logged in
     const signin = () => {
         router.push({
@@ -121,8 +139,8 @@ function Tasks() {
                     {progress ? (
                         <div className='grid grid-cols-3 gap-x-10'>
                             {
-                                categoryRes.map((item) => {
-                                    return item.tasks.map((i) => {
+                                categoryRes?.map((item) => {
+                                    return item.tasks?.map((i) => {
 
                                         return <GetTasks
                                             category={item.name}
@@ -144,7 +162,7 @@ function Tasks() {
                                                 customerName={i.customerName}
                                                 phoneNumber={i.customerPhonenumber}
                                                 address={i.location.split(',')[0]}
-                                                endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
+                                                endDate={i.endDate}
                                                 category={item.name}
                                                 taskId={i._id}
                                                 tech={taskRes?.map((ii) => {

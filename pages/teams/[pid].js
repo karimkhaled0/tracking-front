@@ -91,12 +91,12 @@ const teams = () => {
     });
     var categId
     const addTechnicals = () => {
-        categoryRes.map((i) => {
+        categoryRes?.map((i) => {
             if (i.name == pid) {
                 return categId = i._id
             }
         })
-        newArray.map(async (i) => {
+        newArray?.map(async (i) => {
             const res = await fetch(`http://localhost:8000/api/user/${i}`, {
                 method: 'PUT',
                 headers: {
@@ -155,13 +155,13 @@ const teams = () => {
                     </div>
                 </button>
                 {/* Fetch Categories */}
-                {categoryRes.map((i) => {
+                {categoryRes?.map((i) => {
                     if (i.name.replace('/', '') == pid) {
                         return technicals.filter((val) => {
                             if (val.name.toLowerCase().includes(searchTech.toLowerCase())) {
                                 return val
                             }
-                        }).map((ii) => {
+                        })?.map((ii) => {
                             if (i._id == ii.category) {
                                 return <div className='border rounded-md bg-white shadow-lg p-5 space-y-8'>
                                     <div className='flex flex-col items-center space-y-5 cursor-pointer transform transition ease-out active:scale-90 duration-200'
@@ -260,7 +260,7 @@ const teams = () => {
                                                         if (val.name.toLowerCase().includes(searchTech.toLowerCase())) {
                                                             return val
                                                         }
-                                                    }).map((i) => {
+                                                    })?.map((i) => {
 
                                                         return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
                                                         text-blue-700' onClick={(e) => {
@@ -279,9 +279,9 @@ const teams = () => {
                                         <div title='scroll down' className='border px-5 py-1 flex justify-between h-32 
                                         border-blue-200 overflow-y-scroll scrollbar-hide'>
                                             <div className=''>
-                                                {technicals.map((i) => {
+                                                {technicals?.map((i) => {
                                                     let names
-                                                    newArray.map((ii) => {
+                                                    newArray?.map((ii) => {
                                                         if (i._id == ii) {
                                                             names = i.name
                                                         }
@@ -290,7 +290,7 @@ const teams = () => {
                                                 })}
                                             </div>
                                             <div>
-                                                {newArray.map((i) => {
+                                                {newArray?.map((i) => {
                                                     return <XIcon onClick={() => {
                                                         setTechnicalsId(newArray.filter(item => item !== i))
                                                     }} className='h-6 text-red-400 cursor-pointer' />

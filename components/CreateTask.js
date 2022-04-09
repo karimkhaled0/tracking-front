@@ -200,6 +200,7 @@ function CreateTask() {
             setAddress(res.features[0].place_name)
         }
     }, [coord])
+    console.log(categId)
     return (
         <div>
             <button className='button px-5 py-2 border rounded-lg bg-blue-500 text-white' onClick={closeModal}>Create Task</button>
@@ -317,7 +318,7 @@ function CreateTask() {
                                                 }} />
                                                 {/* Search location */}
                                                 <div className='flex flex-col items-start'>
-                                                    {mapSearchRes.map((item) => {
+                                                    {mapSearchRes?.map((item) => {
                                                         if (address == '') {
                                                             return
                                                         } else {
@@ -450,7 +451,7 @@ function CreateTask() {
                                                     }} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-96' >
                                                         <option value="" selected disabled hidden>Choose here</option>
                                                         {
-                                                            categoryRes.map((item) => {
+                                                            categoryRes?.map((item) => {
                                                                 return <option value={item._id}>{item.name}</option>
                                                             })
                                                         }
@@ -462,9 +463,9 @@ function CreateTask() {
                                                     <select onChange={(e) => setTechnical(e.target.value)} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-96' >
                                                         <option value="" selected disabled hidden>Choose here</option>
                                                         {
-                                                            categoryRes.map((item) => {
+                                                            categoryRes?.map((item) => {
                                                                 if (item._id == categId) {
-                                                                    return item.technicals.map((i) => {
+                                                                    return item.technicals?.map((i) => {
                                                                         return <option value={i._id}>{i.name}</option>
                                                                     })
                                                                 }
@@ -603,7 +604,7 @@ function CreateTask() {
                                                 <div>
                                                     <h1 className='text-gray-700 text-lg mt-5'>Team</h1>
                                                     <h1 className='text-lg font-semibold'>{
-                                                        categoryRes.map((item) => {
+                                                        categoryRes?.map((item) => {
                                                             if (item._id == categId) {
                                                                 return item.name
                                                             }
@@ -614,8 +615,8 @@ function CreateTask() {
                                                 <div>
                                                     <h1 className='text-gray-700 text-lg mt-5'>Technical</h1>
                                                     <h1 className='text-lg font-semibold'>{
-                                                        categoryRes.map((item) => {
-                                                            return item.technicals.map((i) => {
+                                                        categoryRes?.map((item) => {
+                                                            return item.technicals?.map((i) => {
                                                                 if (i._id == technical) {
                                                                     return i.name
                                                                 }
@@ -648,6 +649,9 @@ function CreateTask() {
                                             mapStyle="mapbox://styles/mapbox/streets-v9"
                                             mapboxAccessToken={process.env.mapbox_key}
                                             {...viewport}
+                                            longitude={coord.lng}
+                                            latitude={coord.lat}
+                                            zoom={10}
                                             onWheel={(nextViewport) => setViewport(nextViewport)}
                                         >
                                             <Marker longitude={coord ? (coord.lng) : null} latitude={coord ? (coord.lat) : null} anchor="right" color='#FF0000'>

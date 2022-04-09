@@ -103,11 +103,6 @@ function Header({ islogged }) {
         })
     }
 
-    const signup = () => {
-        router.push({
-            pathname: '/signup'
-        })
-    }
 
     const signin = () => {
         router.push({
@@ -188,8 +183,7 @@ function Header({ islogged }) {
                 </div>
             ) : (
                 < div className='flex justify-end space-x-3 items-center'>
-                    <button className='px-5 py-2 border rounded-full button text-blue-700' onClick={signup}>Sign Up</button>
-                    <button className='px-5 py-2 border rounded-full button bg-blue-500 text-white' onClick={signin}>Sign in</button>
+                    <button className='px-5 py-2 border rounded-full button text-blue-700' onClick={signin}>Sign in</button>
                 </div>
             )}
         </header >

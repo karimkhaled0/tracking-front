@@ -7,6 +7,25 @@ import { Dialog, Transition } from '@headlessui/react'
 
 
 function Teams() {
+    const router = useRouter()
+
+    const checkAdmin = useEffect(async () => {
+        if (!localStorage.token) {
+            return
+        } else {
+            const res = await fetch('http://localhost:8000/api/user/me', {
+                method: 'GET',
+                headers: {
+                    'authorization': `Bearer ${localStorage.token}`
+                }
+            }).then((r) => r.json()).catch((e) => console.log(e))
+            if (!res.data.isAdmin) {
+                router.push({
+                    pathname: '/notAuthorized'
+                })
+            }
+        }
+    }, [])
     const [modal, setModal] = useState(false)
     const [open, setOpen] = useState(true)
     const [technicals, setTechnicals] = useState([])
@@ -40,7 +59,6 @@ function Teams() {
     const cancelButtonRef = useRef(null)
     const [categoryRes, setCategoryRes] = useState([])
     const [user, setUser] = useState(false)
-    const router = useRouter()
 
     const loggedHandler = useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/user/me', {
@@ -130,12 +148,12 @@ function Teams() {
     }
     // Add technicals to the category created
     useEffect(() => {
-        categoryRes.map((i) => {
+        categoryRes?.map((i) => {
             if (i.name == categName) {
                 return categId = i._id
             }
         })
-        newArray.map(async (i) => {
+        newArray?.map(async (i) => {
             const res = await fetch(`http://localhost:8000/api/user/${i}`, {
                 method: 'PUT',
                 headers: {
@@ -165,7 +183,7 @@ function Teams() {
                     </div>
                 </button>
                 {/* Fetch Categories */}
-                {categoryRes.map((i) => {
+                {categoryRes?.map((i) => {
                     return <div onClick={() => {
                         router.push({
                             pathname: `/teams/${i.name.replace('/', '')}`
@@ -197,7 +215,7 @@ function Teams() {
                                     +${i.technicals.length - 3}`
 
                                 ) : (
-                                    i.technicals.map((ii) => {
+                                    i.technicals?.map((ii) => {
                                         return `${ii.name.charAt(0).toUpperCase() + ii.name.slice(1)}, `
                                     })
                                 )
@@ -284,7 +302,7 @@ function Teams() {
                                                         if (val.name.toLowerCase().includes(searchTech.toLowerCase())) {
                                                             return val
                                                         }
-                                                    }).map((i) => {
+                                                    })?.map((i) => {
 
                                                         return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
                                                         text-blue-700' onClick={(e) => {
@@ -313,11 +331,11 @@ function Teams() {
                                                         if (val.toLowerCase().includes(searchTeamLeader.toLowerCase())) {
                                                             return val
                                                         }
-                                                    }).map((i) => {
+                                                    })?.map((i) => {
                                                         return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
                                                         text-blue-700' onClick={(e) => {
                                                                 setTeamLeaderName(oldArray => [...oldArray, i])
-                                                                technicals.map((ii) => {
+                                                                technicals?.map((ii) => {
                                                                     if (ii.name == i) {
                                                                         setTeamLeaderId(ii._id)
                                                                     }
@@ -335,9 +353,9 @@ function Teams() {
                                         <div title='scroll down' className='border px-5 py-1 flex justify-between h-32 
                                         border-blue-200 overflow-y-scroll scrollbar-hide'>
                                             <div className=''>
-                                                {technicals.map((i) => {
+                                                {technicals?.map((i) => {
                                                     let names
-                                                    newArray.map((ii) => {
+                                                    newArray?.map((ii) => {
                                                         if (i._id == ii) {
                                                             names = i.name
                                                         }
@@ -346,7 +364,7 @@ function Teams() {
                                                 })}
                                             </div>
                                             <div>
-                                                {newArray.map((i) => {
+                                                {newArray?.map((i) => {
                                                     return <XIcon onClick={() => {
                                                         setTechnicalsId(newArray.filter(item => item !== i))
                                                     }} className='h-6 text-red-400 cursor-pointer' />

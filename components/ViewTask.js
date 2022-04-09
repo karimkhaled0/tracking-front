@@ -4,13 +4,16 @@ import {
   ChatAltIcon,
   CheckCircleIcon,
   ExclamationCircleIcon,
-  XIcon
+  XIcon,
+  PencilAltIcon
 } from '@heroicons/react/solid'
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationIcon } from '@heroicons/react/outline'
 import { useRouter } from 'next/router';
 import Map, { Marker, Popup } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { Calendar } from 'react-date-range';
+import { format, parseISO } from 'date-fns'
 
 
 function ViewTask({ description, customerName, phoneNumber, address, category, tech, endDate, taskId }) {
@@ -42,6 +45,7 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
     setModal2(!modal2)
   }
   const closeModal = () => {
+    setUpdateTask(false)
     setViewport({
       longitude: coordinate.long,
       latitude: coordinate.lat,
@@ -65,11 +69,82 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
     setCoordinate(res.task.coordinates)
   }, [customerName])
 
+
   const [viewport, setViewport] = useState({
     longitude: 31,
     latitude: 29,
     zoom: 10
   })
+
+  const [updateTask, setUpdateTask] = useState(false)
+  const [updatedDescription, setUpdatedDescription] = useState(description)
+  const [updatedCustomerName, setUpdatedCustomerName] = useState(customerName)
+  const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState(phoneNumber)
+  const [updatedAddress, setUpdatedAddress] = useState(address)
+  const [updatedCategory, setUpdatedCategory] = useState()
+  const [updatedTech, setUpdatedTech] = useState()
+  const [updatedEndDate, setUpdatedEndDate] = useState(null)
+  const [prog, setProg] = useState(false)
+
+  // coordinates for marker which will post to create task
+  const [coord, setCoord] = useState('')
+
+  const getAddress = useEffect(async () => {
+    const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${coord.lng},${coord.lat}.json?access_token=pk.eyJ1Ijoia2FyaW1raGFsZWRlbG1hd2UiLCJhIjoiY2wxa3l4bDRjMDN6ZDNjb2JnbWpzbGVncSJ9.Hr7IeGn4060vCiHaeJH1Zw`, {
+      method: 'GET',
+    }).then((t) => t.json())
+    if ((res.query[0] && res.query[1]) == 'undefined') {
+      setUpdatedAddress(address)
+    } else {
+      setUpdatedAddress(res.features[0].place_name)
+    }
+  }, [coord])
+
+  const [categoryRes, setCategoryRes] = useState([])
+  //  Categories (GET)
+  const getCategory = useEffect(async () => {
+    const res = await fetch('http://localhost:8000/api/category', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': `Bearer ${localStorage.token}`
+      },
+    }).then((t) => t.json()).catch((e) => console.log(e))
+    setCategoryRes(res.categories)
+  }, [])
+
+
+
+  const updateTaskHandler = () => {
+    setUpdateTask(true)
+    console.log(updatedCategory)
+  }
+
+  const updateTaskPut = async () => {
+    const res = await fetch(`http://localhost:8000/api/task/${taskId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': `Bearer ${localStorage.token}`
+      },
+      body: JSON.stringify({
+        description: updatedDescription,
+        customerName: updatedCustomerName,
+        customerPhonenumber: updatedPhoneNumber,
+        location: updatedAddress,
+        coordinates: {
+          long: coord ? coord.lng : coordinate.long,
+          lat: coord ? coord.lat : coordinate.lat,
+          zoom: 10
+        },
+        category: updatedCategory,
+        techId: updatedTech,
+        endDate: updatedEndDate ? format(updatedEndDate, 'yyyy-MM-dd') : format(parseISO(endDate.split('T')[0]), 'yyyy-MM-dd')
+      })
+    }).then((t) => t.json()).catch((e) => console.log(e))
+    setProg(!prog)
+  }
+
   return (
     <div>
       <button className='border shadow-md active:scale-95 transition transform ease-out 
@@ -118,62 +193,159 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
                           <h1 className='text-4xl font-semibold'>#12345</h1>
                           <h1 className='text-lg text-gray-500'>(in progress)</h1>
                         </div>
-                        <div>
-                          <XIcon className='h-7 text-red-500 font-semibold cursor-pointer' onClick={closeModal} />
+                        <div className='flex space-x-2 items-center'>
+                          <PencilAltIcon className='h-5 text-gray-500 font-semibold cursor-pointer' onClick={closeModal} />
+                          <h1 className='text-xl text-gray-500 cursor-pointer' onClick={updateTaskHandler}>Edit task</h1>
                         </div>
                       </div>
                       {/* Description */}
                       <div className='space-y-2'>
                         <h1 className='text-xl text-gray-500 '>Description</h1>
-                        <div className='flex items-center space-x-2 bg-white shadow-md rounded-lg'>
-                          <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-hide mr-5 text-xl text-gray-800 font-semibold mx-5' title="Scroll down">
-                            {description}
-                          </div>
-                        </div>
+
+                        {
+                          updateTask ? (
+                            <textarea type="text" value={updatedDescription} onChange={(e) => {
+                              setUpdatedDescription(e.target.value)
+                            }} title="Scroll down" className="w-full shadow-md bg-white p-2 scrollbar-hide mt-2 mb-3 text-lg rounded-lg pl-3" rows="3" cols="50"></textarea>
+                          ) : (
+                            <div className='flex items-center space-x-2 bg-white shadow-md rounded-lg'>
+                              <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-hide mr-5 text-xl text-gray-800 font-semibold mx-5' title="Scroll down">
+                                {description}
+                              </div>
+                            </div>
+                          )
+                        }
+
                       </div>
                       {/* customer and phone number */}
                       <div className='flex justify-between space-x-16'>
                         {/* Customer */}
                         <div className='flex-grow space-y-2'>
                           <h1 className='text-xl  text-gray-500'>Customer Name</h1>
-                          <h1 className='text-xl font-semibold ml-2'> {customerName}</h1>
+                          {
+                            updateTask ? (
+                              <input autoComplete="chrome-off" className='pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2' value={updatedCustomerName} type="text" onChange={(e) => {
+                                setUpdatedCustomerName(e.target.value)
+                              }} />
+                            ) : (
+                              <h1 className='text-xl font-semibold ml-2'> {customerName}</h1>
+                            )
+                          }
                         </div>
                         {/* Phone number */}
                         <div className='flex-grow space-y-2'>
                           <h1 className='text-xl  text-gray-500'>Phone Number</h1>
-                          <h1 className='text-xl font-semibold ml-2'> {phoneNumber}</h1>
+                          {
+                            updateTask ? (
+                              <input autoComplete="chrome-off" className='pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2' value={updatedPhoneNumber} type="text" onChange={(e) => {
+                                setUpdatedPhoneNumber(e.target.value)
+                              }} />
+                            ) : (
+                              <h1 className='text-xl font-semibold ml-2'> {phoneNumber}</h1>
+                            )
+                          }
                         </div>
                       </div>
                       {/* Address */}
                       <div className='space-y-2'>
                         <h1 className='text-xl  text-gray-500'>Address</h1>
-                        <h1 className='text-xl font-semibold ml-2'> {address}</h1>
+                        {
+                          updateTask ? (
+                            <input autoComplete="chrome-off" className='pb-1 text-lg bg-white rounded-lg pl-3 shadow-md mt-2  w-full' value={updatedAddress} type="text" onChange={(e) => {
+                              setUpdatedAddress(e.target.value)
+                            }} />
+                          ) : (
+                            <h1 className='text-xl font-semibold ml-2'> {address}</h1>
+                          )
+                        }
                       </div>
                       {/* Category / Assigned to / EndData */}
                       <div className='flex justify-between space-x-16'>
                         {/* Category */}
                         <div className='flex-grow space-y-2'>
                           <h1 className='text-xl  text-gray-500'>Category</h1>
-                          <h1 className='text-xl font-semibold ml-2'> {category}</h1>
+                          {
+                            updateTask ? (
+                              <select onChange={(e) => {
+                                setUpdatedCategory(e.target.value)
+                              }} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-40' >
+                                <option value="" selected disabled hidden>Choose here</option>
+                                {
+                                  categoryRes?.map((item) => {
+                                    return <option value={item._id}>{item.name}</option>
+                                  })
+                                }
+                              </select>
+                            ) : (
+                              <h1 className='text-xl font-semibold ml-2'> {category}</h1>
+                            )
+                          }
 
                         </div>
                         {/* Assigned to */}
                         <div className='flex-grow space-y-2'>
                           <h1 className='text-xl  text-gray-500'>Technical</h1>
-                          <h1 className='text-xl font-semibold ml-2'> {tech}</h1>
+                          {
+                            updateTask ? (
+                              <select onChange={(e) => {
+                                setUpdatedTech(e.target.value)
+                              }} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-40' >
+                                <option value="" selected disabled hidden>Choose here</option>
+                                {
+                                  categoryRes?.map((item) => {
+                                    if (item._id == updatedCategory) {
+                                      return item.technicals?.map((i) => {
+                                        return <option value={i._id}>{i.name}</option>
+                                      })
+                                    }
+
+                                  })
+                                }
+                              </select>
+                            ) : (
+                              <h1 className='text-xl font-semibold ml-2'> {tech}</h1>
+                            )
+                          }
 
                         </div>
-                        {/* End Date */}
-                        <div className='flex-grow space-y-2'>
-                          <h1 className='text-xl text-gray-500'>Deadline</h1>
-                          <h1 className='text-xl font-semibold ml-2'>{endDate}</h1>
-                        </div>
+
                       </div>
-                      <div className='flex justify-between mt-20'>
+                      {/* End Date */}
+                      <div className='flex-grow space-y-2'>
+                        <h1 className='text-xl text-gray-500'>Deadline</h1>
+
+                        {
+                          updateTask ? (
+                            <Calendar
+                              dateDisplayFormat={'yyyy-MM-dd'}
+                              onChange={item => setUpdatedEndDate(item)}
+                              date={updatedEndDate}
+                            />
+                          ) : (
+                            <h1 className='text-xl font-semibold ml-2'> {format(parseISO(endDate.split('T')[0]), 'dd/MMMM/yyyy')}</h1>
+                          )
+                        }
+                      </div>
+                      <div className='flex mt-20'>
                         <button className='border shadow-md rounded-lg active:scale-95 transition transform ease-out 
                     text-white py-2 px-5 bg-slate-500 cursor-pointer hover:opacity-80 mr-5' onClick={closeModal}>close</button>
-                        <button className='border shadow-md active:scale-95 transition transform ease-out 
+                        {
+                          updateTask ? (
+                            prog ? (<button
+                              type="button"
+                              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                            >
+                              <h1 className='animate-spin'></h1>
+                              Loading...
+                            </button>) : (
+                              <button className='border shadow-md active:scale-95 transition transform ease-out 
+                      text-white py-2 px-5 bg-blue-500 rounded-lg cursor-pointer hover:opacity-80 mr-5' onClick={updateTaskPut}>Update</button>
+                            )
+                          ) : (
+                            <button className='border shadow-md active:scale-95 transition transform ease-out 
                     text-white py-2 px-5 bg-red-500 rounded-lg cursor-pointer hover:opacity-80 mr-5' onClick={closeModal2}>Delete</button>
+                          )
+                        }
                       </div>
                       {modal2 ? <Transition.Root show={open} as={Fragment}>
                         <Dialog as="div" className="fixed z-30 inset-0 overflow-y-auto" initialFocus={cancelButtonRef} onClose={setModal2}>
@@ -247,15 +419,30 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
                     </div>
                     {/* Map */}
                     <div className='m-10'>
-                      <Map
-                        mapStyle="mapbox://styles/mapbox/streets-v9"
-                        mapboxAccessToken={process.env.mapbox_key}
-                        onWheel={(nextViewport) => setViewport(nextViewport)}
-                        {...viewport}
-                      >
-                        <Marker longitude={coordinate ? (coordinate.long) : null} latitude={coordinate ? (coordinate.lat) : null} anchor="right" color='#FF0000'>
-                        </Marker>
-                      </Map>
+                      {
+                        updateTask ? (
+                          <Map
+                            mapStyle="mapbox://styles/mapbox/streets-v9"
+                            mapboxAccessToken={process.env.mapbox_key}
+                            onWheel={(nextViewport) => setViewport(nextViewport)}
+                            onDblClick={(nextViewport) => setCoord(nextViewport.lngLat)}
+                            {...viewport}
+                          >
+                            <Marker longitude={coord ? (coord.lng) : coordinate.long} latitude={coord ? (coord.lat) : coordinate.lat} anchor="right" color='#FF0000'>
+                            </Marker>
+                          </Map>
+                        ) : (
+                          <Map
+                            mapStyle="mapbox://styles/mapbox/streets-v9"
+                            mapboxAccessToken={process.env.mapbox_key}
+                            onWheel={(nextViewport) => setViewport(nextViewport)}
+                            {...viewport}
+                          >
+                            <Marker longitude={coordinate ? (coordinate.long) : null} latitude={coordinate ? (coordinate.lat) : null} anchor="right" color='#FF0000'>
+                            </Marker>
+                          </Map>
+                        )
+                      }
                     </div>
                   </div>
                 </div>
@@ -263,9 +450,10 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
             </div>
 
           </Dialog>
-        </Transition.Root>
-      ) : null}
-    </div>
+        </Transition.Root >
+      ) : null
+      }
+    </div >
   )
 }
 

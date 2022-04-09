@@ -9,12 +9,31 @@ import { Dialog, Transition } from '@headlessui/react'
 
 
 function Technicals() {
+  const router = useRouter()
+
+  const checkAdmin = useEffect(async () => {
+    if (!localStorage.token) {
+      return
+    } else {
+      const res = await fetch('http://localhost:8000/api/user/me', {
+        method: 'GET',
+        headers: {
+          'authorization': `Bearer ${localStorage.token}`
+        }
+      }).then((r) => r.json()).catch((e) => console.log(e))
+      if (!res.data.isAdmin) {
+        router.push({
+          pathname: '/notAuthorized'
+        })
+      }
+    }
+  }, [])
   // Modal
   const [modal, setModal] = useState(false)
   const [open, setOpen] = useState(true)
   const [admin, setAdmin] = useState(false)
   const [teamleader, setTeamleader] = useState(false)
-  const [tech, setTech] = useState(false)
+  const [tech, setTech] = useState(true)
 
   const cancelButtonRef = useRef(null)
   const modalHandler = async () => {
@@ -30,6 +49,9 @@ function Technicals() {
     else {
       setModal(true)
     }
+  }
+  const closeModal = () => {
+    setModal(!modal)
   }
   const adminHandler = () => {
     setAdmin(true)
@@ -50,7 +72,6 @@ function Technicals() {
   const [searchTech, setSearchTech] = useState('')
   // user checked
   const [user, setUser] = useState(false)
-  const router = useRouter()
   const loggedHandler = useEffect(async () => {
     const res = await fetch('http://localhost:8000/api/user/me', {
       method: 'GET',
@@ -140,15 +161,17 @@ function Technicals() {
       setTimeout(() => {
         window.location.reload()
       }, 2000);
+    } else {
+      if (error.name) {
+        setNameError(true)
+        setNameStateError(error.name)
+      }
+      if (error.loginId) {
+        setLoginIdError(true)
+        setLoginIdStateError(error.loginId)
+      }
     }
-    if (error.name) {
-      setNameError(true)
-      setNameStateError(error.name)
-    }
-    if (error.loginId) {
-      setLoginIdError(true)
-      setLoginIdStateError(error.loginId)
-    }
+
   }
   return (
     <div className='relative'>
@@ -171,7 +194,7 @@ function Technicals() {
             />
           </div>
           <div>
-            <button className='px-5 py-2 border rounded-lg button bg-blue-500 text-white' onClick={modalHandler}>Add technical</button>
+            <button className='px-5 py-2 border rounded-lg button bg-blue-500 text-white' onClick={closeModal}>Add technical</button>
           </div>
         </div>
         <div className='grid grid-cols-5 gap-5'>
@@ -179,7 +202,7 @@ function Technicals() {
             if (val.name.toLowerCase().includes(searchTech.toLowerCase())) {
               return val
             }
-          }).map((i) => {
+          })?.map((i) => {
             return <div>
               <div className='border rounded-lg bg-white shadow-lg p-5 space-y-8 relative'>
                 <div className='flex lex flex-col items-center space-y-5 cursor-pointer transform transition ease-out active:scale-90 duration-200'
@@ -342,7 +365,7 @@ function Technicals() {
                     <button
                       type="button"
                       className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                      onClick={modalHandler}
+                      onClick={closeModal}
                       ref={cancelButtonRef}
                     >
                       Cancel
