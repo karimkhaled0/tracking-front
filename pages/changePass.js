@@ -37,7 +37,7 @@ function ChangePass() {
     const changePassword = async () => {
         if (password1 == password2) {
             if ((password1.length > 8 && password1.length < 16) && (password2.length > 8 && password2.length < 16)) {
-                const res = await fetch(`http://localhost:8000/api/user/${userId}/changePassword`, {
+                const res = await fetch(`http://localhost:8000/api/user/changepassword`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

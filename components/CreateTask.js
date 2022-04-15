@@ -23,6 +23,8 @@ function CreateTask() {
     const [customerNameError, setCustomerNameError] = useState(false)
     const [phoneNumberError, setPhoneNumberError] = useState(false)
     const [descriptionError, setDescriptionError] = useState(false)
+    const [techError, setTechError] = useState(false)
+    const [techTrackError, setTechTrackError] = useState(true)
 
 
 
@@ -63,6 +65,10 @@ function CreateTask() {
     const nextHandler = () => {
         setModal(false)
         setModal2(!modal2)
+    }
+    const closeModal1 = () => {
+        setModal(!modal)
+
     }
     // Back button
     const closeModal2 = () => {
@@ -111,7 +117,6 @@ function CreateTask() {
     const [phoneNumber, setPhoneNumber] = useState('')
     const [customerName, setCustomerName] = useState('')
     const [address, setAddress] = useState('')
-
     // Create task function (POST)
     const createTask = async () => {
         const res = await fetch(`http://localhost:8000/api/task`, {
@@ -140,7 +145,7 @@ function CreateTask() {
         }).then((t) => t.json())
         // Errors handler and valdiation
         const error = res.errors
-        if (!error) {
+        if (!error && !techTrackError) {
             setProg(!prog)
             setTimeout(() => {
                 window.location.reload()
@@ -153,6 +158,10 @@ function CreateTask() {
             if (error.category) {
                 setModal2(!modal2)
                 setCategoryError(true)
+            }
+            if (techTrackError) {
+                setModal2(!modal2)
+                setTechError(true)
             }
             if (error.customerName) {
                 setModal(!modal)
@@ -168,7 +177,6 @@ function CreateTask() {
             }
         }
     }
-
     // map Functions
     // save search 
     const [mapSearchRes, setMapSearchRes] = useState([])
@@ -203,7 +211,7 @@ function CreateTask() {
     console.log(categId)
     return (
         <div>
-            <button className='button px-5 py-2 border rounded-lg bg-blue-500 text-white' onClick={closeModal}>Create Task</button>
+            <button className='button px-5 py-2 border rounded-lg bg-blue-500 text-white' onClick={closeModal1}>Create Task</button>
             {modal && (<Transition.Root show={open} as={Fragment}>
                 <Dialog as="div" className="fixed z-30 inset-0 overflow-y-auto" initialFocus={cancelButtonRef} onClose={setModal}>
                     <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -364,7 +372,7 @@ function CreateTask() {
                                     <button
                                         type="button"
                                         className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                                        onClick={closeModal}
+                                        onClick={closeModal1}
                                         ref={cancelButtonRef}
                                     >
                                         Cancel
@@ -449,7 +457,7 @@ function CreateTask() {
                                                         // hide valdiation while typing
                                                         setCategoryError(false)
                                                     }} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-96' >
-                                                        <option value="" selected disabled hidden>Choose here</option>
+                                                        <option value='' selected disabled hidden>Choose here</option>
                                                         {
                                                             categoryRes?.map((item) => {
                                                                 return <option value={item._id}>{item.name}</option>
@@ -459,9 +467,17 @@ function CreateTask() {
                                                 </div>
                                                 {/* Technical select */}
                                                 <div>
-                                                    <h1 className='text-lg text-gray-500 mt-5'>Technical</h1>
-                                                    <select onChange={(e) => setTechnical(e.target.value)} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-96' >
-                                                        <option value="" selected disabled hidden>Choose here</option>
+                                                    <div className='flex items-center space-x-2 mt-5'>
+                                                        <h1 className='text-lg text-gray-500'>Team</h1>
+                                                        <ExclamationCircleIcon className={techError ? 'h-5 text-red-500' : 'hidden'} />
+                                                    </div>
+                                                    <select onChange={(e) => {
+                                                        setTechnical(e.target.value)
+                                                        // hide valdiation while typing
+                                                        setTechError(false)
+                                                        setTechTrackError(false)
+                                                    }} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-96' >
+                                                        <option value={techTrackError} selected disabled hidden>Choose here</option>
                                                         {
                                                             categoryRes?.map((item) => {
                                                                 if (item._id == categId) {

@@ -34,6 +34,9 @@ const teams = () => {
             setModal(true)
         }
     }
+    const closeModalHandler = () => {
+        setModal(!modal)
+    }
     const cancelButtonRef = useRef(null)
 
     const loggedHandler = useEffect(async () => {
@@ -146,7 +149,7 @@ const teams = () => {
             </section>
             <main className='grid grid-cols-4 mx-[64px] my-[80px] gap-[80px] '>
                 {/* Create Category */}
-                <button onClick={closeModal} className='border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
+                <button onClick={closeModalHandler} className='border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
                     <div className='flex flex-col items-center space-y-8'>
                         <div className='border border-blue-500 rounded-full'>
                             <PlusIcon className='h-16 p-2 m-3 text-gray-500 text-center' />
@@ -178,6 +181,10 @@ const teams = () => {
                                         {/* Technical name */}
                                         <div className=''>
                                             <h1 className='text-2xl font-semibold text-blue-500'>{ii.name.charAt(0).toUpperCase() + ii.name.slice(1)}</h1>
+                                        </div>
+                                        {/* Technical title */}
+                                        <div className=''>
+                                            <h1 className='text-gray-500'>{ii.isTeamLeader ? 'Team leader' : 'Technical'}</h1>
                                         </div>
                                     </div>
                                     <div className='flex justify-between items-center'>
@@ -325,7 +332,7 @@ const teams = () => {
                                     <button
                                         type="button"
                                         className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                                        onClick={closeModal}
+                                        onClick={closeModalHandler}
                                         ref={cancelButtonRef}
                                     >
                                         Cancel

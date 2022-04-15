@@ -10,24 +10,6 @@ import ViewTask from '../components/ViewTask'
 
 function Tasks() {
     const router = useRouter();
-
-    const checkAdmin = useEffect(async () => {
-        if (!localStorage.token) {
-            return
-        } else {
-            const res = await fetch('http://localhost:8000/api/user/me', {
-                method: 'GET',
-                headers: {
-                    'authorization': `Bearer ${localStorage.token}`
-                }
-            }).then((r) => r.json()).catch((e) => console.log(e))
-            if (!res.data.isAdmin) {
-                router.push({
-                    pathname: '/notAuthorized'
-                })
-            }
-        }
-    }, [])
     const [categoryRes, setCategoryRes] = useState([])
     const [taskRes, setTaskRes] = useState([])
     const [progress, setProgress] = useState(true)

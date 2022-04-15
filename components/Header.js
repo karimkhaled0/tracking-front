@@ -119,9 +119,14 @@ function Header({ islogged }) {
             }
         }).then((r) => r.json()).catch((e) => console.log(e))
         if (res.data) {
-            if (res.data.counter == 0) {
+            if (res.data.changePasswordCounter == 0) {
                 router.push({
                     pathname: '/changePass'
+                })
+            }
+            else if (!res.data.isAdmin && !res.data.isTeamLeader) {
+                router.push({
+                    pathname: '/notAuthorized'
                 })
             }
         } else {
@@ -129,11 +134,12 @@ function Header({ islogged }) {
         }
         if (res.data) {
             setDisplayName(res.data.name)
-            setDisplayEmail(res.data.email)
+            setDisplayEmail(res.data.loginId)
         } else {
             return
         }
     }, [displayEmail, displayName])
+
 
     return (
         <header className='sticky top-0 z-20 grid grid-cols-3 bg-white py-5 px-5 shadow-md md:px-10 items-center'>

@@ -5,24 +5,6 @@ import { useRouter } from 'next/router'
 function Messages() {
     const router = useRouter()
 
-    const checkAdmin = useEffect(async () => {
-        if (!localStorage.token) {
-            return
-        } else {
-            const res = await fetch('http://localhost:8000/api/user/me', {
-                method: 'GET',
-                headers: {
-                    'authorization': `Bearer ${localStorage.token}`
-                }
-            }).then((r) => r.json()).catch((e) => console.log(e))
-            if (!res.data.isAdmin) {
-                router.push({
-                    pathname: '/notAuthorized'
-                })
-            }
-        }
-    }, [])
-
     const [user, setUser] = useState(false)
     const loggedHandler = useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/user/me', {

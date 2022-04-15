@@ -8,31 +8,13 @@ import { Dialog, Transition } from '@headlessui/react'
 
 function Teams() {
     const router = useRouter()
-
-    const checkAdmin = useEffect(async () => {
-        if (!localStorage.token) {
-            return
-        } else {
-            const res = await fetch('http://localhost:8000/api/user/me', {
-                method: 'GET',
-                headers: {
-                    'authorization': `Bearer ${localStorage.token}`
-                }
-            }).then((r) => r.json()).catch((e) => console.log(e))
-            if (!res.data.isAdmin) {
-                router.push({
-                    pathname: '/notAuthorized'
-                })
-            }
-        }
-    }, [])
     const [modal, setModal] = useState(false)
     const [open, setOpen] = useState(true)
     const [technicals, setTechnicals] = useState([])
     const [technicalsId, setTechnicalsId] = useState([])
     const [technicalsName, setTechnicalsName] = useState([])
     const [teamLeaderName, setTeamLeaderName] = useState([])
-    const [teamLeaderId, setTeamLeaderId] = useState('')
+    const [teamLeaderId, setTeamLeaderId] = useState([])
     const [searchTech, setSearchTech] = useState('')
     const [searchTeamLeader, setSearchTeamLeader] = useState('')
     const [headerViewd, setHeaderViewd] = useState(true)
@@ -55,6 +37,9 @@ function Teams() {
         else {
             setModal(true)
         }
+    }
+    const closeModalHandler = () => {
+        setModal(!modal)
     }
     const cancelButtonRef = useRef(null)
     const [categoryRes, setCategoryRes] = useState([])
@@ -114,10 +99,11 @@ function Teams() {
         return technicalsId.indexOf(elem) == pos;
     });
 
-    // Team Leader array
-    var newArray2 = technicalsName.filter(function (elem, pos) {
-        return technicalsName.indexOf(elem) == pos;
+    // Team leader array
+    var newArray2 = teamLeaderId.filter(function (elem, pos) {
+        return teamLeaderId.indexOf(elem) == pos;
     });
+
 
 
     // Create Category with technicals and team leader
@@ -153,7 +139,8 @@ function Teams() {
                 return categId = i._id
             }
         })
-        newArray?.map(async (i) => {
+        let allTechnicals = newArray.concat(newArray2)
+        allTechnicals?.map(async (i) => {
             const res = await fetch(`http://localhost:8000/api/user/${i}`, {
                 method: 'PUT',
                 headers: {
@@ -169,12 +156,13 @@ function Teams() {
     })
 
 
+
     return (
         <div>
             <Header islogged={user} />
             <main className='grid grid-cols-4 mx-[64px] my-[80px] gap-[80px] '>
                 {/* Create Category */}
-                <button onClick={closeModal} className='border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
+                <button onClick={closeModalHandler} className='border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
                     <div className='flex flex-col items-center space-y-8'>
                         <div className='border border-blue-500 rounded-full'>
                             <PlusIcon className='h-16 p-2 m-3 text-gray-500 text-center' />
@@ -206,7 +194,6 @@ function Teams() {
                         </div>
                         {/* Tech's names */}
                         <div className='text-gray-500'>
-                            {console.log(i.technicals.length)}
                             <h1 className='text-xl'>{
                                 i.technicals.length > 3 ? (
                                     `${i.technicals[0].name.charAt(0).toUpperCase() + i.technicals[0].name.slice(1)}, 
@@ -299,7 +286,7 @@ function Teams() {
                                                 />
                                                 <div className='overflow-y-scroll flex flex-col space-y-1 h-40 scrollbar-hide'>
                                                     {technicals.filter((val) => {
-                                                        if (val.name.toLowerCase().includes(searchTech.toLowerCase())) {
+                                                        if (val.name.toLowerCase().includes(searchTech.toLowerCase()) && !val.isTeamLeader) {
                                                             return val
                                                         }
                                                     })?.map((i) => {
@@ -327,24 +314,20 @@ function Teams() {
                                                     onChange={(e) => setSearchTeamLeader(e.target.value)}
                                                 />
                                                 <div className='overflow-y-scroll flex flex-col space-y-1 h-40 scrollbar-hide'>
-                                                    {newArray2.filter((val) => {
-                                                        if (val.toLowerCase().includes(searchTeamLeader.toLowerCase())) {
+                                                    {technicals.filter((val) => {
+                                                        if (val.name.toLowerCase().includes(searchTeamLeader.toLowerCase()) && val.isTeamLeader) {
                                                             return val
                                                         }
                                                     })?.map((i) => {
+
                                                         return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
                                                         text-blue-700' onClick={(e) => {
-                                                                setTeamLeaderName(oldArray => [...oldArray, i])
-                                                                technicals?.map((ii) => {
-                                                                    if (ii.name == i) {
-                                                                        setTeamLeaderId(ii._id)
-                                                                    }
-                                                                })
-                                                            }}>{i}</button>
+                                                                setTeamLeaderId(oldArray => [...oldArray, i._id])
+                                                                setTeamLeaderName(oldArray => [...oldArray, i.name])
+                                                            }}>{i.name}</button>
                                                     })
                                                     }
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -377,12 +360,22 @@ function Teams() {
                                         <div className='border px-5 py-1 flex justify-between 
                                         border-blue-200 overflow-y-scroll scrollbar-hide'>
                                             <div className=''>
-                                                <h1 className='text-gray-500'>{teamLeaderName}</h1>
+                                                {technicals?.map((i) => {
+                                                    let names
+                                                    newArray2?.map((ii) => {
+                                                        if (i._id == ii) {
+                                                            names = i.name
+                                                        }
+                                                    })
+                                                    return <h1 className='text-gray-500'>{names}</h1>
+                                                })}
                                             </div>
                                             <div>
-                                                <XIcon onClick={() => {
-                                                    setTeamLeaderName([])
-                                                }} className='h-6 text-red-400 cursor-pointer' />
+                                                {newArray2?.map((i) => {
+                                                    return <XIcon onClick={() => {
+                                                        setTeamLeaderId(newArray.filter(item => item !== i))
+                                                    }} className='h-6 text-red-400 cursor-pointer' />
+                                                })}
                                             </div>
                                         </div>
                                     </div>
@@ -408,7 +401,7 @@ function Teams() {
                                     <button
                                         type="button"
                                         className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                                        onClick={closeModal}
+                                        onClick={closeModalHandler}
                                         ref={cancelButtonRef}
                                     >
                                         Cancel

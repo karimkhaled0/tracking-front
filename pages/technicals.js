@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react'
 import Header from '../components/Header'
 import { useRouter } from 'next/router'
-import { DotsHorizontalIcon, DotsVerticalIcon, ExclamationCircleIcon, PlusCircleIcon, SearchIcon } from '@heroicons/react/solid'
+import { DotsHorizontalIcon, DotsVerticalIcon, ExclamationCircleIcon, PlusCircleIcon, PlusIcon, SearchIcon } from '@heroicons/react/solid'
 import { LocationMarkerIcon, ChatAltIcon, DotsCircleHorizontalIcon } from '@heroicons/react/outline'
 import Avatar from 'react-avatar';
 import { Dialog, Transition } from '@headlessui/react'
@@ -11,23 +11,7 @@ import { Dialog, Transition } from '@headlessui/react'
 function Technicals() {
   const router = useRouter()
 
-  const checkAdmin = useEffect(async () => {
-    if (!localStorage.token) {
-      return
-    } else {
-      const res = await fetch('http://localhost:8000/api/user/me', {
-        method: 'GET',
-        headers: {
-          'authorization': `Bearer ${localStorage.token}`
-        }
-      }).then((r) => r.json()).catch((e) => console.log(e))
-      if (!res.data.isAdmin) {
-        router.push({
-          pathname: '/notAuthorized'
-        })
-      }
-    }
-  }, [])
+
   // Modal
   const [modal, setModal] = useState(false)
   const [open, setOpen] = useState(true)
@@ -151,7 +135,8 @@ function Technicals() {
         password2: password,
         phonenumber: phoneNumber,
         address: address,
-        isAdmin: admin
+        isAdmin: admin,
+        isTeamLeader: teamleader
       })
     }).then((t) => t.json())
     const error = res.errors
@@ -193,11 +178,16 @@ function Technicals() {
               className="h-8 cursor-pointer rounded-full bg-blue-400 p-2 text-white flex mx-3"
             />
           </div>
-          <div>
-            <button className='px-5 py-2 border rounded-lg button bg-blue-500 text-white' onClick={closeModal}>Add technical</button>
-          </div>
         </div>
         <div className='grid grid-cols-5 gap-5'>
+          <button onClick={closeModal} className='border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
+            <div className='flex flex-col items-center space-y-8'>
+              <div className='border border-blue-500 rounded-full'>
+                <PlusIcon className='h-16 p-2 m-3 text-gray-500 text-center' />
+              </div>
+              <h1 className='text-xl text-gray-500'>Add technical</h1>
+            </div>
+          </button>
           {technicals?.filter((val) => {
             if (val.name.toLowerCase().includes(searchTech.toLowerCase())) {
               return val
