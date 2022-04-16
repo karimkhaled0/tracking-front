@@ -45,22 +45,24 @@ function CreateTask() {
     const [categId, setCategId] = useState('')
     const [technical, setTechnical] = useState('')
 
+    const [teamLeaderCategory, setTeamLeaderCategory] = useState([])
+    const [teamLeader, setTeamLeader] = useState(false)
 
-    // Cancel button
-    const closeModal = async () => {
+    useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/user/me', {
             method: 'GET',
             headers: {
+                'Content-Type': 'application/json',
                 'authorization': `Bearer ${localStorage.token}`
             }
-        }).then((r) => r.json()).catch((e) => console.log(e))
-        if (!res.data.isAdmin) {
-            setModal(false)
+        }).then((r) => r.json())
+        if (res.data.isTeamLeader) {
+            setTeamLeaderCategory(res.data.category)
+            setTeamLeader(true)
         }
-        else {
-            setModal(true)
-        }
-    }
+
+    }, [])
+
     // Next button
     const nextHandler = () => {
         setModal(false)
@@ -460,7 +462,12 @@ function CreateTask() {
                                                         <option value='' selected disabled hidden>Choose here</option>
                                                         {
                                                             categoryRes?.map((item) => {
-                                                                return <option value={item._id}>{item.name}</option>
+                                                                if (item._id == teamLeaderCategory && teamLeader) {
+                                                                    return <option value={item._id}>{item.name}</option>
+                                                                }
+                                                                else {
+                                                                    return <option value={item._id}>{item.name}</option>
+                                                                }
                                                             })
                                                         }
                                                     </select>

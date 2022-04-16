@@ -6,7 +6,7 @@ import {
     ChevronDownIcon,
 } from '@heroicons/react/solid'
 
-function Header({ islogged }) {
+function Header({ islogged, techProfile = true, techTeam = true }) {
     const router = useRouter();
     // Viewing profile modal
     const [view, setView] = useState(false);
@@ -119,25 +119,24 @@ function Header({ islogged }) {
             }
         }).then((r) => r.json()).catch((e) => console.log(e))
         if (res.data) {
+            setDisplayName(res.data.name)
+            setDisplayEmail(res.data.loginId)
             if (res.data.changePasswordCounter == 0) {
                 router.push({
                     pathname: '/changePass'
                 })
             }
             else if (!res.data.isAdmin && !res.data.isTeamLeader) {
-                router.push({
-                    pathname: '/notAuthorized'
-                })
+                if (techProfile || techTeam) {
+                    router.push({
+                        pathname: '/notAuthorized'
+                    })
+                }
             }
         } else {
             return
         }
-        if (res.data) {
-            setDisplayName(res.data.name)
-            setDisplayEmail(res.data.loginId)
-        } else {
-            return
-        }
+
     }, [displayEmail, displayName])
 
 

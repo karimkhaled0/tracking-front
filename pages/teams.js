@@ -24,26 +24,21 @@ function Teams() {
     const [nameErrIcon, setNameErrIcon] = useState(false)
     const [nameErr, setNameErr] = useState('')
 
-    const closeModal = async () => {
-        const res = await fetch('http://localhost:8000/api/user/me', {
-            method: 'GET',
-            headers: {
-                'authorization': `Bearer ${localStorage.token}`
-            }
-        }).then((r) => r.json()).catch((e) => console.log(e))
-        if (!res.data.isAdmin) {
+    const [teamLeaderError, setTeamLeaderError] = useState(false)
+    const [teamLeaderErrorSyntax, setTeamLeaderErrorSyntax] = useState('')
+    const closeModalHandler = () => {
+        if (teamLeaderError) {
             setModal(false)
+            setTeamLeaderErrorSyntax("You can't perform this action, Ask your Admin")
         }
         else {
-            setModal(true)
+            setModal(!modal)
         }
-    }
-    const closeModalHandler = () => {
-        setModal(!modal)
     }
     const cancelButtonRef = useRef(null)
     const [categoryRes, setCategoryRes] = useState([])
     const [user, setUser] = useState(false)
+    const [teamLeaderCategory, setTeamLeaderCategory] = useState([])
 
     const loggedHandler = useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/user/me', {
@@ -62,6 +57,10 @@ function Teams() {
         } else {
             setUser(true)
 
+        }
+        if (res.data.isTeamLeader) {
+            setTeamLeaderError(true)
+            setTeamLeaderCategory(res.data.category)
         }
 
     }, [])
@@ -162,8 +161,9 @@ function Teams() {
             <Header islogged={user} />
             <main className='grid grid-cols-4 mx-[64px] my-[80px] gap-[80px] '>
                 {/* Create Category */}
-                <button onClick={closeModalHandler} className='border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
+                <button onClick={closeModalHandler} className={teamLeaderErrorSyntax ? 'border border-red-500 rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200' : 'border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'}>
                     <div className='flex flex-col items-center space-y-8'>
+                        <h1 className='text-red-500'>{teamLeaderErrorSyntax}</h1>
                         <div className='border border-blue-500 rounded-full'>
                             <PlusIcon className='h-16 p-2 m-3 text-gray-500 text-center' />
                         </div>
@@ -171,45 +171,87 @@ function Teams() {
                     </div>
                 </button>
                 {/* Fetch Categories */}
-                {categoryRes?.map((i) => {
-                    return <div onClick={() => {
-                        router.push({
-                            pathname: `/teams/${i.name.replace('/', '')}`
-                        })
-                    }} className='border rounded-md bg-white shadow-lg p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
-                        {/* Category name */}
-                        <div className='flex justify-between items-center'>
-                            <h1 className='text-2xl font-semibold text-blue-500'>{i.name.charAt(0).toUpperCase() + i.name.slice(1)}</h1>
-                        </div>
-                        {/* Details */}
-                        <div className='space-y-3'>
-                            <div className='flex justify-between items-center'>
-                                <h1 className='text-lg font-normal'>Total Technicals</h1>
-                                <h1 className='text-lg font-normal'>{i.technicals.length}</h1>
-                            </div>
-                            <div className='flex justify-between'>
-                                <h1 className='text-lg font-normal'>Available now</h1>
-                                <h1 className='text-lg font-normal'>5</h1>
-                            </div>
-                        </div>
-                        {/* Tech's names */}
-                        <div className='text-gray-500'>
-                            <h1 className='text-xl'>{
-                                i.technicals.length > 3 ? (
-                                    `${i.technicals[0].name.charAt(0).toUpperCase() + i.technicals[0].name.slice(1)}, 
+                {teamLeaderError ?
+                    categoryRes?.map((i) => {
+                        if (i._id == teamLeaderCategory) {
+                            return <div onClick={() => {
+                                router.push({
+                                    pathname: `/teams/${i.name.replace('/', '')}`
+                                })
+                            }} className='border rounded-md bg-white shadow-lg p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
+                                {/* Category name */}
+                                <div className='flex justify-between items-center'>
+                                    <h1 className='text-2xl font-semibold text-blue-500'>{i.name.charAt(0).toUpperCase() + i.name.slice(1)}</h1>
+                                </div>
+                                {/* Details */}
+                                <div className='space-y-3'>
+                                    <div className='flex justify-between items-center'>
+                                        <h1 className='text-lg font-normal'>Total Technicals</h1>
+                                        <h1 className='text-lg font-normal'>{i.technicals.length}</h1>
+                                    </div>
+                                    <div className='flex justify-between'>
+                                        <h1 className='text-lg font-normal'>Available now</h1>
+                                        <h1 className='text-lg font-normal'>5</h1>
+                                    </div>
+                                </div>
+                                {/* Tech's names */}
+                                <div className='text-gray-500'>
+                                    <h1 className='text-xl'>{
+                                        i.technicals.length > 3 ? (
+                                            `${i.technicals[0].name.charAt(0).toUpperCase() + i.technicals[0].name.slice(1)}, 
                                     ${i.technicals[1].name.charAt(0).toUpperCase() + i.technicals[1].name.slice(1)}, 
                                     ${i.technicals[2].name.charAt(0).toUpperCase() + i.technicals[2].name.slice(1)}, 
                                     +${i.technicals.length - 3}`
 
-                                ) : (
-                                    i.technicals?.map((ii) => {
-                                        return `${ii.name.charAt(0).toUpperCase() + ii.name.slice(1)}, `
-                                    })
-                                )
-                            }</h1>
+                                        ) : (
+                                            i.technicals?.map((ii) => {
+                                                return `${ii.name.charAt(0).toUpperCase() + ii.name.slice(1)}, `
+                                            })
+                                        )
+                                    }</h1>
+                                </div>
+                            </div>
+                        }
+                    }) :
+                    categoryRes?.map((i) => {
+                        return <div onClick={() => {
+                            router.push({
+                                pathname: `/teams/${i.name.replace('/', '')}`
+                            })
+                        }} className='border rounded-md bg-white shadow-lg p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
+                            {/* Category name */}
+                            <div className='flex justify-between items-center'>
+                                <h1 className='text-2xl font-semibold text-blue-500'>{i.name.charAt(0).toUpperCase() + i.name.slice(1)}</h1>
+                            </div>
+                            {/* Details */}
+                            <div className='space-y-3'>
+                                <div className='flex justify-between items-center'>
+                                    <h1 className='text-lg font-normal'>Total Technicals</h1>
+                                    <h1 className='text-lg font-normal'>{i.technicals.length}</h1>
+                                </div>
+                                <div className='flex justify-between'>
+                                    <h1 className='text-lg font-normal'>Available now</h1>
+                                    <h1 className='text-lg font-normal'>5</h1>
+                                </div>
+                            </div>
+                            {/* Tech's names */}
+                            <div className='text-gray-500'>
+                                <h1 className='text-xl'>{
+                                    i.technicals.length > 3 ? (
+                                        `${i.technicals[0].name.charAt(0).toUpperCase() + i.technicals[0].name.slice(1)}, 
+                                    ${i.technicals[1].name.charAt(0).toUpperCase() + i.technicals[1].name.slice(1)}, 
+                                    ${i.technicals[2].name.charAt(0).toUpperCase() + i.technicals[2].name.slice(1)}, 
+                                    +${i.technicals.length - 3}`
+
+                                    ) : (
+                                        i.technicals?.map((ii) => {
+                                            return `${ii.name.charAt(0).toUpperCase() + ii.name.slice(1)}, `
+                                        })
+                                    )
+                                }</h1>
+                            </div>
                         </div>
-                    </div>
-                })}
+                    })}
             </main>
             {modal ? <Transition.Root show={open} as={Fragment}>
                 <Dialog as="div" className="fixed z-30 inset-0 overflow-y-auto" initialFocus={cancelButtonRef} onClose={setModal}>
@@ -290,12 +332,15 @@ function Teams() {
                                                             return val
                                                         }
                                                     })?.map((i) => {
-
-                                                        return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
-                                                        text-blue-700' onClick={(e) => {
-                                                                setTechnicalsId(oldArray => [...oldArray, i._id])
-                                                                setTechnicalsName(oldArray => [...oldArray, i.name])
-                                                            }}>{i.name}</button>
+                                                        if (i.category == undefined) {
+                                                            return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
+                                                            text-blue-700' onClick={(e) => {
+                                                                    setTechnicalsId(oldArray => [...oldArray, i._id])
+                                                                    setTechnicalsName(oldArray => [...oldArray, i.name])
+                                                                }}>{i.name}</button>
+                                                        } else {
+                                                            return
+                                                        }
                                                     })
                                                     }
                                                 </div>
@@ -320,11 +365,16 @@ function Teams() {
                                                         }
                                                     })?.map((i) => {
 
-                                                        return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
+                                                        if (i.category == undefined) {
+                                                            return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
                                                         text-blue-700' onClick={(e) => {
-                                                                setTeamLeaderId(oldArray => [...oldArray, i._id])
-                                                                setTeamLeaderName(oldArray => [...oldArray, i.name])
-                                                            }}>{i.name}</button>
+                                                                    setTeamLeaderId(oldArray => [...oldArray, i._id])
+                                                                    setTeamLeaderName(oldArray => [...oldArray, i.name])
+                                                                }}>{i.name}</button>
+                                                        }
+                                                        else {
+                                                            return
+                                                        }
                                                     })
                                                     }
                                                 </div>

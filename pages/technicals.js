@@ -20,22 +20,14 @@ function Technicals() {
   const [tech, setTech] = useState(true)
 
   const cancelButtonRef = useRef(null)
-  const modalHandler = async () => {
-    const res = await fetch('http://localhost:8000/api/user/me', {
-      method: 'GET',
-      headers: {
-        'authorization': `Bearer ${localStorage.token}`
-      }
-    }).then((r) => r.json()).catch((e) => console.log(e))
-    if (!res.data.isAdmin) {
+  const closeModal = () => {
+    if (teamLeaderError) {
       setModal(false)
+      setTeamLeaderErrorSyntax("You can't perform this action, Ask your Admin")
     }
     else {
-      setModal(true)
+      setModal(!modal)
     }
-  }
-  const closeModal = () => {
-    setModal(!modal)
   }
   const adminHandler = () => {
     setAdmin(true)
@@ -56,6 +48,8 @@ function Technicals() {
   const [searchTech, setSearchTech] = useState('')
   // user checked
   const [user, setUser] = useState(false)
+  const [teamLeaderError, setTeamLeaderError] = useState(false)
+  const [teamLeaderErrorSyntax, setTeamLeaderErrorSyntax] = useState('')
   const loggedHandler = useEffect(async () => {
     const res = await fetch('http://localhost:8000/api/user/me', {
       method: 'GET',
@@ -72,7 +66,9 @@ function Technicals() {
       })
     } else {
       setUser(true)
-
+    }
+    if (res.data.isTeamLeader) {
+      setTeamLeaderError(true)
     }
 
   }, [])
@@ -120,6 +116,7 @@ function Technicals() {
   const [nameError, setNameError] = useState(false)
   const [nameStateError, setNameStateError] = useState('')
   const [loginIdStateError, setLoginIdStateError] = useState('')
+
 
   const signUp = async (e) => {
     e.preventDefault()
@@ -180,8 +177,9 @@ function Technicals() {
           </div>
         </div>
         <div className='grid grid-cols-5 gap-5'>
-          <button onClick={closeModal} className='border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
+          <button onClick={closeModal} className={teamLeaderErrorSyntax ? 'border border-red-500 rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200' : 'border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'}>
             <div className='flex flex-col items-center space-y-8'>
+              <h1 className='text-red-500'>{teamLeaderErrorSyntax}</h1>
               <div className='border border-blue-500 rounded-full'>
                 <PlusIcon className='h-16 p-2 m-3 text-gray-500 text-center' />
               </div>
@@ -209,6 +207,10 @@ function Technicals() {
                   {/* Technical name */}
                   <div className=''>
                     <h1 className='text-2xl font-semibold text-blue-500'>{i.name.charAt(0).toUpperCase() + i.name.slice(1)}</h1>
+                  </div>
+                  {/* Technical title */}
+                  <div className=''>
+                    <h1 className='text-gray-500'>{i.isTeamLeader ? 'Team leader' : 'Technical'}</h1>
                   </div>
                 </div>
 

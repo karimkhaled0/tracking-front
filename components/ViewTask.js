@@ -142,7 +142,13 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
         endDate: updatedEndDate ? format(updatedEndDate, 'yyyy-MM-dd') : format(parseISO(endDate.split('T')[0]), 'yyyy-MM-dd')
       })
     }).then((t) => t.json()).catch((e) => console.log(e))
-    setProg(!prog)
+    const error = res.errors
+    if (!error) {
+      setProg(!prog)
+      setTimeout(() => {
+        window.location.reload()
+      }, 2000);
+    }
   }
 
   return (
@@ -264,23 +270,7 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
                         {/* Category */}
                         <div className='flex-grow space-y-2'>
                           <h1 className='text-xl  text-gray-500'>Category</h1>
-                          {
-                            updateTask ? (
-                              <select onChange={(e) => {
-                                setUpdatedCategory(e.target.value)
-                              }} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-40' >
-                                <option value="" selected disabled hidden>Choose here</option>
-                                {
-                                  categoryRes?.map((item) => {
-                                    return <option value={item._id}>{item.name}</option>
-                                  })
-                                }
-                              </select>
-                            ) : (
-                              <h1 className='text-xl font-semibold ml-2'> {category}</h1>
-                            )
-                          }
-
+                          <h1 className='text-xl font-semibold ml-2'> {category}</h1>
                         </div>
                         {/* Assigned to */}
                         <div className='flex-grow space-y-2'>
@@ -293,12 +283,11 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
                                 <option value="" selected disabled hidden>Choose here</option>
                                 {
                                   categoryRes?.map((item) => {
-                                    if (item._id == updatedCategory) {
+                                    if (item.name == category) {
                                       return item.technicals?.map((i) => {
                                         return <option value={i._id}>{i.name}</option>
                                       })
                                     }
-
                                   })
                                 }
                               </select>

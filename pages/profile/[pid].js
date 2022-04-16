@@ -96,15 +96,13 @@ const teams = () => {
         setMyProfile(true)
     }, [])
 
-    console.log(adminUserData)
-
-
-
     return (
         <div className='relative'>
             <Header
                 headerView={!headerViewd}
                 islogged={user}
+                techProfile={false}
+                techTeam={false}
             />
             {myProfile ? (
                 <section className='mx-auto px-8 max-w-7xl my-10'>
@@ -114,7 +112,6 @@ const teams = () => {
                                 <Avatar className='rounded-full' name={adminUserData.name} size='100' />
                             </div>
                             <h1 className='text-xl font-semibold text-blue-600 mt-5'>{adminUserData.name}</h1>
-                            <h1 className='text-gray-500 mt-2'>{categoryName}</h1>
                             <h1 className='text-blue-500'>Admin</h1>
                         </div>
                         <div className='col-span-2 ml-[100px] space-y-5'>
@@ -154,7 +151,7 @@ const teams = () => {
                                 <Avatar className='rounded-full' name={userData.name} size='100' />
                             </div>
                             <h1 className='text-xl font-semibold text-blue-600 mt-5'>{userData.name}</h1>
-                            <h1 className='text-gray-500 mt-2'>{categoryName}</h1>
+                            <h1 className='text-gray-500 mt-2'>{categoryName == '' ? 'not in a team' : categoryName}</h1>
                             <h1 className='text-blue-500  mt-2'>{userData.isTeamLeader ? 'Team leader' : 'Technical'}</h1>
                             <div className='flex space-x-5 mt-20 ml-7'>
                                 <div className='border-r-2 pr-5 space-y-5 items-center flex flex-col'>
@@ -194,7 +191,7 @@ const teams = () => {
                             <div>
                                 <h1 className='text-xl text-gray-500 '>Team</h1>
                                 <div className='bg-gray-50 h-12 rounded-lg shadow-md'>
-                                    <h1 className='text-xl font-semibold text-blue-600 mt-2 py-2 px-4'>{categoryName}</h1>
+                                    <h1 className={categoryName == '' ? 'text-lg font-semibold text-gray-600 mt-2 py-2 px-4' : 'text-xl font-semibold text-blue-600 mt-2 py-2 px-4'}>{categoryName == '' ? 'not in a team' : categoryName}</h1>
                                 </div>
                             </div>
                             <div>

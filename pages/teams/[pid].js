@@ -38,7 +38,7 @@ const teams = () => {
         setModal(!modal)
     }
     const cancelButtonRef = useRef(null)
-
+    const [teamLeader, setTeamLeader] = useState(false)
     const loggedHandler = useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/user/me', {
             method: 'GET',
@@ -55,10 +55,13 @@ const teams = () => {
             })
         } else {
             setUser(true)
-
+        }
+        if (res.data.isTeamLeader) {
+            setTeamLeader(true)
         }
 
     }, [])
+
 
     const getCategory = useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/category', {
@@ -128,6 +131,8 @@ const teams = () => {
             <Header
                 headerView={!headerViewd}
                 islogged={user}
+                techTeam={false}
+                techProfile={false}
             />
             <section className='mx-auto max-w-10xl px-8'>
                 <div className='text-center my-5'>
@@ -263,18 +268,36 @@ const teams = () => {
                                                     onChange={(e) => setSearchTech(e.target.value)}
                                                 />
                                                 <div className='overflow-y-scroll flex flex-col space-y-1 h-40 scrollbar-hide'>
-                                                    {technicals.filter((val) => {
-                                                        if (val.name.toLowerCase().includes(searchTech.toLowerCase())) {
-                                                            return val
-                                                        }
-                                                    })?.map((i) => {
+                                                    {
+                                                        teamLeader ? technicals.filter((val) => {
+                                                            if (val.name.toLowerCase().includes(searchTech.toLowerCase()) && val.category == '') {
+                                                                return val
+                                                            }
+                                                        })?.map((i) => {
 
-                                                        return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
+                                                            if (i.category == '') {
+                                                                return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
+                                                            text-blue-700' onClick={(e) => {
+                                                                        setTechnicalsId(oldArray => [...oldArray, i._id])
+                                                                        setTechnicalsName(oldArray => [...oldArray, i.name])
+                                                                    }}>{i.name}</button>
+                                                            } else {
+                                                                return <h1>hi</h1>
+                                                            }
+                                                        })
+                                                            :
+                                                            technicals.filter((val) => {
+                                                                if (val.name.toLowerCase().includes(searchTech.toLowerCase())) {
+                                                                    return val
+                                                                }
+                                                            })?.map((i) => {
+
+                                                                return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
                                                         text-blue-700' onClick={(e) => {
-                                                                setTechnicalsId(oldArray => [...oldArray, i._id])
-                                                                setTechnicalsName(oldArray => [...oldArray, i.name])
-                                                            }}>{i.name}</button>
-                                                    })
+                                                                        setTechnicalsId(oldArray => [...oldArray, i._id])
+                                                                        setTechnicalsName(oldArray => [...oldArray, i.name])
+                                                                    }}>{i.name}</button>
+                                                            })
                                                     }
                                                 </div>
 
