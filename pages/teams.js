@@ -29,7 +29,7 @@ function Teams() {
     const closeModalHandler = () => {
         if (teamLeaderError) {
             setModal(false)
-            setTeamLeaderErrorSyntax("You can't perform this action, Ask your Admin")
+            setTeamLeaderErrorSyntax("You can't perform to do this action, Ask your Admin")
         }
         else {
             setModal(!modal)
@@ -171,87 +171,55 @@ function Teams() {
                     </div>
                 </button>
                 {/* Fetch Categories */}
-                {teamLeaderError ?
-                    categoryRes?.map((i) => {
-                        if (i._id == teamLeaderCategory) {
-                            return <div onClick={() => {
+                {categoryRes?.map((i) => {
+                    return <div onClick={() => {
+                        if (teamLeaderError) {
+                            if (teamLeaderCategory == i._id) {
                                 router.push({
                                     pathname: `/teams/${i.name.replace('/', '')}`
                                 })
-                            }} className='border rounded-md bg-white shadow-lg p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
-                                {/* Category name */}
-                                <div className='flex justify-between items-center'>
-                                    <h1 className='text-2xl font-semibold text-blue-500'>{i.name.charAt(0).toUpperCase() + i.name.slice(1)}</h1>
-                                </div>
-                                {/* Details */}
-                                <div className='space-y-3'>
-                                    <div className='flex justify-between items-center'>
-                                        <h1 className='text-lg font-normal'>Total Technicals</h1>
-                                        <h1 className='text-lg font-normal'>{i.technicals.length}</h1>
-                                    </div>
-                                    <div className='flex justify-between'>
-                                        <h1 className='text-lg font-normal'>Available now</h1>
-                                        <h1 className='text-lg font-normal'>5</h1>
-                                    </div>
-                                </div>
-                                {/* Tech's names */}
-                                <div className='text-gray-500'>
-                                    <h1 className='text-xl'>{
-                                        i.technicals.length > 3 ? (
-                                            `${i.technicals[0].name.charAt(0).toUpperCase() + i.technicals[0].name.slice(1)}, 
-                                    ${i.technicals[1].name.charAt(0).toUpperCase() + i.technicals[1].name.slice(1)}, 
-                                    ${i.technicals[2].name.charAt(0).toUpperCase() + i.technicals[2].name.slice(1)}, 
-                                    +${i.technicals.length - 3}`
-
-                                        ) : (
-                                            i.technicals?.map((ii) => {
-                                                return `${ii.name.charAt(0).toUpperCase() + ii.name.slice(1)}, `
-                                            })
-                                        )
-                                    }</h1>
-                                </div>
-                            </div>
-                        }
-                    }) :
-                    categoryRes?.map((i) => {
-                        return <div onClick={() => {
+                            } else {
+                                return
+                            }
+                        } else {
                             router.push({
                                 pathname: `/teams/${i.name.replace('/', '')}`
                             })
-                        }} className='border rounded-md bg-white shadow-lg p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
-                            {/* Category name */}
+                        }
+                    }} className='border rounded-md bg-white shadow-lg p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
+                        {/* Category name */}
+                        <div className='flex justify-between items-center'>
+                            <h1 className='text-2xl font-semibold text-blue-500'>{i.name.charAt(0).toUpperCase() + i.name.slice(1)}</h1>
+                        </div>
+                        {/* Details */}
+                        <div className='space-y-3'>
                             <div className='flex justify-between items-center'>
-                                <h1 className='text-2xl font-semibold text-blue-500'>{i.name.charAt(0).toUpperCase() + i.name.slice(1)}</h1>
+                                <h1 className='text-lg font-normal'>Total Technicals</h1>
+                                <h1 className='text-lg font-normal'>{i.technicals.length}</h1>
                             </div>
-                            {/* Details */}
-                            <div className='space-y-3'>
-                                <div className='flex justify-between items-center'>
-                                    <h1 className='text-lg font-normal'>Total Technicals</h1>
-                                    <h1 className='text-lg font-normal'>{i.technicals.length}</h1>
-                                </div>
-                                <div className='flex justify-between'>
-                                    <h1 className='text-lg font-normal'>Available now</h1>
-                                    <h1 className='text-lg font-normal'>5</h1>
-                                </div>
+                            <div className='flex justify-between'>
+                                <h1 className='text-lg font-normal'>Available now</h1>
+                                <h1 className='text-lg font-normal'>5</h1>
                             </div>
-                            {/* Tech's names */}
-                            <div className='text-gray-500'>
-                                <h1 className='text-xl'>{
-                                    i.technicals.length > 3 ? (
-                                        `${i.technicals[0].name.charAt(0).toUpperCase() + i.technicals[0].name.slice(1)}, 
+                        </div>
+                        {/* Tech's names */}
+                        <div className='text-gray-500'>
+                            <h1 className='text-xl'>{
+                                i.technicals.length > 3 ? (
+                                    `${i.technicals[0].name.charAt(0).toUpperCase() + i.technicals[0].name.slice(1)}, 
                                     ${i.technicals[1].name.charAt(0).toUpperCase() + i.technicals[1].name.slice(1)}, 
                                     ${i.technicals[2].name.charAt(0).toUpperCase() + i.technicals[2].name.slice(1)}, 
                                     +${i.technicals.length - 3}`
 
-                                    ) : (
-                                        i.technicals?.map((ii) => {
-                                            return `${ii.name.charAt(0).toUpperCase() + ii.name.slice(1)}, `
-                                        })
-                                    )
-                                }</h1>
-                            </div>
+                                ) : (
+                                    i.technicals?.map((ii) => {
+                                        return `${ii.name.charAt(0).toUpperCase() + ii.name.slice(1)}, `
+                                    })
+                                )
+                            }</h1>
                         </div>
-                    })}
+                    </div>
+                })}
             </main>
             {modal ? <Transition.Root show={open} as={Fragment}>
                 <Dialog as="div" className="fixed z-30 inset-0 overflow-y-auto" initialFocus={cancelButtonRef} onClose={setModal}>
@@ -333,11 +301,16 @@ function Teams() {
                                                         }
                                                     })?.map((i) => {
                                                         if (i.category == undefined) {
-                                                            return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
-                                                            text-blue-700' onClick={(e) => {
-                                                                    setTechnicalsId(oldArray => [...oldArray, i._id])
-                                                                    setTechnicalsName(oldArray => [...oldArray, i.name])
-                                                                }}>{i.name}</button>
+                                                            return (
+                                                                <div className='flex flex-col justify-evenly items-center'>
+                                                                    <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
+                                                                text-blue-700' onClick={(e) => {
+                                                                            setTechnicalsId(oldArray => [...oldArray, i._id])
+                                                                            setTechnicalsName(oldArray => [...oldArray, i.name])
+                                                                        }}>{i.name}</button>
+                                                                    <h1 className='text-xs mb-1 text-gray-600'>Technical</h1>
+                                                                </div>
+                                                            )
                                                         } else {
                                                             return
                                                         }
@@ -366,11 +339,16 @@ function Teams() {
                                                     })?.map((i) => {
 
                                                         if (i.category == undefined) {
-                                                            return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
+                                                            return (
+                                                                <div className='flex flex-col justify-evenly items-center'>
+                                                                    <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
                                                         text-blue-700' onClick={(e) => {
-                                                                    setTeamLeaderId(oldArray => [...oldArray, i._id])
-                                                                    setTeamLeaderName(oldArray => [...oldArray, i.name])
-                                                                }}>{i.name}</button>
+                                                                            setTeamLeaderId(oldArray => [...oldArray, i._id])
+                                                                            setTeamLeaderName(oldArray => [...oldArray, i.name])
+                                                                        }}>{i.name}</button>
+                                                                    <h1 className='text-xs mb-1 text-red-600'>Team leader</h1>
+                                                                </div>
+                                                            )
                                                         }
                                                         else {
                                                             return

@@ -23,7 +23,7 @@ function Technicals() {
   const closeModal = () => {
     if (teamLeaderError) {
       setModal(false)
-      setTeamLeaderErrorSyntax("You can't perform this action, Ask your Admin")
+      setTeamLeaderErrorSyntax("You can't perform to do this action, Ask your Admin")
     }
     else {
       setModal(!modal)
@@ -210,7 +210,7 @@ function Technicals() {
                   </div>
                   {/* Technical title */}
                   <div className=''>
-                    <h1 className='text-gray-500'>{i.isTeamLeader ? 'Team leader' : 'Technical'}</h1>
+                    <h1 className={i.isTeamLeader ? 'text-red-500' : 'text-gray-500'}>{i.isTeamLeader ? 'Team leader' : 'Technical'}</h1>
                   </div>
                 </div>
 

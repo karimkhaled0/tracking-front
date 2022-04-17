@@ -45,8 +45,9 @@ function CreateTask() {
     const [categId, setCategId] = useState('')
     const [technical, setTechnical] = useState('')
 
-    const [teamLeaderCategory, setTeamLeaderCategory] = useState([])
+    const [teamLeaderCategory, setTeamLeaderCategory] = useState()
     const [teamLeader, setTeamLeader] = useState(false)
+    const [admin, setAdmin] = useState(false)
 
     useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/user/me', {
@@ -59,6 +60,9 @@ function CreateTask() {
         if (res.data.isTeamLeader) {
             setTeamLeaderCategory(res.data.category)
             setTeamLeader(true)
+        }
+        if (res.data.isAdmin) {
+            setAdmin(true)
         }
 
     }, [])
@@ -465,7 +469,7 @@ function CreateTask() {
                                                                 if (item._id == teamLeaderCategory && teamLeader) {
                                                                     return <option value={item._id}>{item.name}</option>
                                                                 }
-                                                                else {
+                                                                else if (admin) {
                                                                     return <option value={item._id}>{item.name}</option>
                                                                 }
                                                             })

@@ -34,11 +34,9 @@ const teams = () => {
             setModal(true)
         }
     }
-    const closeModalHandler = () => {
-        setModal(!modal)
-    }
     const cancelButtonRef = useRef(null)
     const [teamLeader, setTeamLeader] = useState(false)
+    const [userData, setUserData] = useState()
     const loggedHandler = useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/user/me', {
             method: 'GET',
@@ -55,13 +53,24 @@ const teams = () => {
             })
         } else {
             setUser(true)
+            setUserData(res.data)
         }
         if (res.data.isTeamLeader) {
             setTeamLeader(true)
         }
-
+        if (!res.data.isTeamLeader && !res.data.isAdmin) {
+            setTechnicalError(false)
+        }
     }, [])
-
+    const [technicalError, setTechnicalError] = useState(true)
+    const [technicalErrorSyntax, setTechnicalErrorSyntax] = useState('')
+    const closeModalHandler = () => {
+        setModal(!modal)
+        if (!technicalError) {
+            setTechnicalErrorSyntax("You can't perform to do this action")
+            setModal(false)
+        }
+    }
 
     const getCategory = useEffect(async () => {
         const res = await fetch('http://localhost:8000/api/category', {
@@ -114,17 +123,18 @@ const teams = () => {
                 })
 
             }).then((t) => t.json())
+            console.log(res)
         })
+
         if (newArray.length == 0) {
             setNameErrIcon(true)
             setNameErr('Must have at least one Technical')
         } else {
             setProg(!prog)
-            setTimeout(() => {
-                window.location.reload()
-            }, 2000);
+
         }
     }
+    console.log(newArray)
 
     return (
         <div className='relative'>
@@ -154,7 +164,8 @@ const teams = () => {
             </section>
             <main className='grid grid-cols-4 mx-[64px] my-[80px] gap-[80px] '>
                 {/* Create Category */}
-                <button onClick={closeModalHandler} className='border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
+                <button onClick={closeModalHandler} className={technicalErrorSyntax ? 'border border-red-500 rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200' : 'border rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'}>
+                    <h1 className='text-red-500'>{technicalErrorSyntax}</h1>
                     <div className='flex flex-col items-center space-y-8'>
                         <div className='border border-blue-500 rounded-full'>
                             <PlusIcon className='h-16 p-2 m-3 text-gray-500 text-center' />
@@ -172,11 +183,17 @@ const teams = () => {
                         })?.map((ii) => {
                             if (i._id == ii.category) {
                                 return <div className='border rounded-md bg-white shadow-lg p-5 space-y-8'>
-                                    <div className='flex flex-col items-center space-y-5 cursor-pointer transform transition ease-out active:scale-90 duration-200'
+                                    <div className='flex flex-col items-center space-y-5 cursor-pointer transform transition ease-out  active:scale-90 duration-200'
                                         onClick={() => {
-                                            router.push({
-                                                pathname: `/profile/${ii.name.replace('/', '')}`
-                                            })
+                                            if (ii._id == userData._id) {
+                                                router.push({
+                                                    pathname: `/profile/${ii.name.replace('/', '')}`
+                                                })
+                                            } else if (userData.isTeamLeader || userData.isAdmin) {
+                                                router.push({
+                                                    pathname: `/profile/${ii.name.replace('/', '')}`
+                                                })
+                                            }
                                         }}
                                     >
                                         {/* Avatar */}
@@ -269,34 +286,59 @@ const teams = () => {
                                                 />
                                                 <div className='overflow-y-scroll flex flex-col space-y-1 h-40 scrollbar-hide'>
                                                     {
-                                                        teamLeader ? technicals.filter((val) => {
-                                                            if (val.name.toLowerCase().includes(searchTech.toLowerCase()) && val.category == '') {
-                                                                return val
-                                                            }
-                                                        })?.map((i) => {
-
-                                                            if (i.category == '') {
-                                                                return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
-                                                            text-blue-700' onClick={(e) => {
-                                                                        setTechnicalsId(oldArray => [...oldArray, i._id])
-                                                                        setTechnicalsName(oldArray => [...oldArray, i.name])
-                                                                    }}>{i.name}</button>
-                                                            } else {
-                                                                return <h1>hi</h1>
-                                                            }
-                                                        })
+                                                        teamLeader ?
+                                                            technicals.filter((val) => {
+                                                                if (val.name.toLowerCase().includes(searchTech.toLowerCase()) && val.category == undefined && !val.isTeamLeader) {
+                                                                    return val
+                                                                }
+                                                            })?.map((i) => {
+                                                                return (
+                                                                    <div className='flex flex-col justify-center items-center'>
+                                                                        <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
+                                                        text-blue-700' onClick={(e) => {
+                                                                                setTechnicalsId(oldArray => [...oldArray, i._id])
+                                                                                setTechnicalsName(oldArray => [...oldArray, i.name])
+                                                                            }}>{i.name}</button>
+                                                                        <div className='flex space-x-2 items-center'>
+                                                                            <h1 className='text-xs mb-1 text-gray-600'>Not in team</h1>
+                                                                            <h1 className='text-xs mb-1 text-gray-600'>Technical</h1>
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            })
                                                             :
                                                             technicals.filter((val) => {
                                                                 if (val.name.toLowerCase().includes(searchTech.toLowerCase())) {
                                                                     return val
                                                                 }
                                                             })?.map((i) => {
-
-                                                                return <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 
-                                                        text-blue-700' onClick={(e) => {
-                                                                        setTechnicalsId(oldArray => [...oldArray, i._id])
-                                                                        setTechnicalsName(oldArray => [...oldArray, i.name])
-                                                                    }}>{i.name}</button>
+                                                                return (
+                                                                    <div className='flex flex-col justify-evenly items-center'>
+                                                                        <button className='mb-1 px-5 py-2 rounded-md button hover:scale-90 text-blue-700'
+                                                                            onClick={(e) => {
+                                                                                setTechnicalsId(oldArray => [...oldArray, i._id])
+                                                                                setTechnicalsName(oldArray => [...oldArray, i.name])
+                                                                            }}>{i.name}</button>
+                                                                        {categoryRes?.map((item) => {
+                                                                            if (item._id == i.category) {
+                                                                                return (
+                                                                                    <div className='flex space-x-2 items-center'>
+                                                                                        <h1 className='text-xs mb-1 text-red-600'>
+                                                                                            {item.name}
+                                                                                        </h1>
+                                                                                        <h1 className={i.isTeamLeader ? 'text-xs mb-1 text-red-600' : 'text-xs mb-1 text-gray-600'}>{i.isTeamLeader ? 'Team leader' : 'Technical'}</h1>
+                                                                                    </div>
+                                                                                )
+                                                                            }
+                                                                        })}
+                                                                        {i.category == undefined ? (
+                                                                            <div className='flex space-x-2 items-center'>
+                                                                                <h1 className='text-xs mb-1 text-gray-600'>Not in team</h1>
+                                                                                <h1 className={i.isTeamLeader ? 'text-xs mb-1 text-red-600' : 'text-xs mb-1 text-gray-600'}>{i.isTeamLeader ? 'Team leader' : 'Technical'}</h1>
+                                                                            </div>
+                                                                        ) : null}
+                                                                    </div>
+                                                                )
                                                             })
                                                     }
                                                 </div>
