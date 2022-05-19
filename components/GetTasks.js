@@ -2,13 +2,16 @@ import { CalendarIcon, ChatAltIcon, HomeIcon, LocationMarkerIcon, UserIcon } fro
 import React, { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 
-function GetTasks({ customerName, location, description, endDate, category, ViewTask, technical }) {
+function GetTasks({ customerName, location, description, endDate, category, ViewTask, technical, started }) {
 
     return (
 
         <div className='border shadow-md pl-4 my-4 py-2 space-y-3'>
             <div className='flex justify-between'>
                 <h1 className='h1 text-2xl '>#12345</h1>
+                <div>
+                    <h1 className='h1 text-xl text-blue-500'>{started}</h1>
+                </div>
                 {ViewTask}
             </div>
             <div className='flex items-center space-x-2'>
@@ -42,6 +45,7 @@ function GetTasks({ customerName, location, description, endDate, category, View
                     <ChatAltIcon className='h-7 text-gray-500 cursor-pointer' />
                 </div>
             </div>
+
         </div>
     )
 }

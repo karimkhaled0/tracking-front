@@ -146,46 +146,108 @@ function Tasks() {
                                 admin ? categoryRes?.map((item) => {
                                     return item.tasks?.map((i) => {
 
-                                        return <GetTasks
-                                            category={item.name}
-                                            key={i._id}
-                                            customerName={i.customerName}
-                                            location={i.location.split(',')[0]}
-                                            description={i.description}
-                                            endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
-                                            technical={taskRes?.map((ii) => {
-                                                if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                    return ii.techId.name
-                                                }
-                                                else {
-                                                    return
-                                                }
-                                            })}
-                                            ViewTask={<ViewTask
-                                                description={i.description}
-                                                customerName={i.customerName}
-                                                phoneNumber={i.customerPhonenumber}
-                                                address={i.location.split(',')[0]}
-                                                endDate={i.endDate}
+                                        if (i.inProgress) {
+                                            return <GetTasks
                                                 category={item.name}
-                                                taskId={i._id}
-                                                tech={taskRes?.map((ii) => {
+                                                key={i._id}
+                                                customerName={i.customerName}
+                                                location={i.location.split(',')[0]}
+                                                description={i.description}
+                                                endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
+                                                technical={taskRes?.map((ii) => {
                                                     if (i.techId == ii.techId._id && i._id == ii._id) {
                                                         return ii.techId.name
-
                                                     }
                                                     else {
                                                         return
                                                     }
                                                 })}
-                                            />}
-                                        />
+                                                started={(i.started) ? 'Task started' : null}
+                                                ViewTask={<ViewTask
+                                                    description={i.description}
+                                                    customerName={i.customerName}
+                                                    phoneNumber={i.customerPhonenumber}
+                                                    address={i.location.split(',')[0]}
+                                                    endDate={i.endDate}
+                                                    category={item.name}
+                                                    taskId={i._id}
+                                                    status={'In progress'}
+                                                    progress={i.inProgress}
+                                                    review={i.inReview}
+                                                    finished={i.finished}
+                                                    tech={taskRes?.map((ii) => {
+                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
+                                                            return ii.techId.name
+
+                                                        }
+                                                        else {
+                                                            return
+                                                        }
+                                                    })}
+                                                />}
+                                            />
+                                        }
 
                                     })
                                 }) : categoryRes?.map((item) => {
                                     if (item._id == teamLeaderCategory) {
                                         return item.tasks?.map((i) => {
 
+                                            if (i.inProgress) {
+                                                return <GetTasks
+                                                    category={item.name}
+                                                    key={i._id}
+                                                    customerName={i.customerName}
+                                                    location={i.location.split(',')[0]}
+                                                    description={i.description}
+                                                    endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
+                                                    technical={taskRes?.map((ii) => {
+                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
+                                                            return ii.techId.name
+                                                        }
+                                                        else {
+                                                            return
+                                                        }
+                                                    })}
+                                                    started={(i.started) ? 'Task started' : null}
+                                                    ViewTask={<ViewTask
+                                                        description={i.description}
+                                                        customerName={i.customerName}
+                                                        phoneNumber={i.customerPhonenumber}
+                                                        address={i.location.split(',')[0]}
+                                                        endDate={i.endDate}
+                                                        category={item.name}
+                                                        taskId={i._id}
+                                                        status={'In progress'}
+                                                        progress={i.inProgress}
+                                                        review={i.inReview}
+                                                        finished={i.finished}
+                                                        tech={taskRes?.map((ii) => {
+                                                            if (i.techId == ii.techId._id && i._id == ii._id) {
+                                                                return ii.techId.name
+
+                                                            }
+                                                            else {
+                                                                return
+                                                            }
+                                                        })}
+                                                    />}
+                                                />
+                                            }
+
+                                        })
+                                    }
+                                })
+                            }
+                        </div>
+                    ) : null}
+                    {review ? (
+                        <div className='grid grid-cols-3 gap-x-10'>
+                            {
+                                admin ? categoryRes?.map((item) => {
+                                    return item.tasks?.map((i) => {
+
+                                        if (i.inReview) {
                                             return <GetTasks
                                                 category={item.name}
                                                 key={i._id}
@@ -209,6 +271,11 @@ function Tasks() {
                                                     endDate={i.endDate}
                                                     category={item.name}
                                                     taskId={i._id}
+                                                    status={'In review'}
+                                                    progress={i.inProgress}
+                                                    review={i.inReview}
+                                                    finished={i.finished}
+                                                    report={i.report}
                                                     tech={taskRes?.map((ii) => {
                                                         if (i.techId == ii.techId._id && i._id == ii._id) {
                                                             return ii.techId.name
@@ -220,6 +287,158 @@ function Tasks() {
                                                     })}
                                                 />}
                                             />
+                                        }
+
+                                    })
+                                }) : categoryRes?.map((item) => {
+                                    if (item._id == teamLeaderCategory) {
+                                        return item.tasks?.map((i) => {
+
+                                            if (i.inReview) {
+                                                return <GetTasks
+                                                    category={item.name}
+                                                    key={i._id}
+                                                    customerName={i.customerName}
+                                                    location={i.location.split(',')[0]}
+                                                    description={i.description}
+                                                    endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
+                                                    technical={taskRes?.map((ii) => {
+                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
+                                                            return ii.techId.name
+                                                        }
+                                                        else {
+                                                            return
+                                                        }
+                                                    })}
+                                                    ViewTask={<ViewTask
+                                                        description={i.description}
+                                                        customerName={i.customerName}
+                                                        phoneNumber={i.customerPhonenumber}
+                                                        address={i.location.split(',')[0]}
+                                                        endDate={i.endDate}
+                                                        category={item.name}
+                                                        taskId={i._id}
+                                                        status={'In review'}
+                                                        progress={i.inProgress}
+                                                        review={i.inReview}
+                                                        finished={i.finished}
+                                                        report={i.report}
+
+                                                        tech={taskRes?.map((ii) => {
+                                                            if (i.techId == ii.techId._id && i._id == ii._id) {
+                                                                return ii.techId.name
+
+                                                            }
+                                                            else {
+                                                                return
+                                                            }
+                                                        })}
+                                                    />}
+                                                />
+                                            }
+
+                                        })
+                                    }
+                                })
+                            }
+                        </div>
+                    ) : null}
+                    {finished ? (
+                        <div className='grid grid-cols-3 gap-x-10'>
+                            {
+                                admin ? categoryRes?.map((item) => {
+                                    return item.tasks?.map((i) => {
+
+                                        if (i.finished) {
+                                            return <GetTasks
+                                                category={item.name}
+                                                key={i._id}
+                                                customerName={i.customerName}
+                                                location={i.location.split(',')[0]}
+                                                description={i.description}
+                                                endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
+                                                technical={taskRes?.map((ii) => {
+                                                    if (i.techId == ii.techId._id && i._id == ii._id) {
+                                                        return ii.techId.name
+                                                    }
+                                                    else {
+                                                        return
+                                                    }
+                                                })}
+                                                ViewTask={<ViewTask
+                                                    description={i.description}
+                                                    customerName={i.customerName}
+                                                    phoneNumber={i.customerPhonenumber}
+                                                    address={i.location.split(',')[0]}
+                                                    endDate={i.endDate}
+                                                    category={item.name}
+                                                    taskId={i._id}
+                                                    status={'Completed'}
+                                                    progress={i.inProgress}
+                                                    review={i.inReview}
+                                                    finished={i.finished}
+                                                    report={i.report}
+
+                                                    tech={taskRes?.map((ii) => {
+                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
+                                                            return ii.techId.name
+
+                                                        }
+                                                        else {
+                                                            return
+                                                        }
+                                                    })}
+                                                />}
+                                            />
+                                        }
+
+                                    })
+                                }) : categoryRes?.map((item) => {
+                                    if (item._id == teamLeaderCategory) {
+                                        return item.tasks?.map((i) => {
+
+                                            if (i.finished) {
+                                                return <GetTasks
+                                                    category={item.name}
+                                                    key={i._id}
+                                                    customerName={i.customerName}
+                                                    location={i.location.split(',')[0]}
+                                                    description={i.description}
+                                                    endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
+                                                    technical={taskRes?.map((ii) => {
+                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
+                                                            return ii.techId.name
+                                                        }
+                                                        else {
+                                                            return
+                                                        }
+                                                    })}
+                                                    ViewTask={<ViewTask
+                                                        description={i.description}
+                                                        customerName={i.customerName}
+                                                        phoneNumber={i.customerPhonenumber}
+                                                        address={i.location.split(',')[0]}
+                                                        endDate={i.endDate}
+                                                        category={item.name}
+                                                        taskId={i._id}
+                                                        status={'Completed'}
+                                                        progress={i.inProgress}
+                                                        review={i.inReview}
+                                                        finished={i.finished}
+                                                        report={i.report}
+
+                                                        tech={taskRes?.map((ii) => {
+                                                            if (i.techId == ii.techId._id && i._id == ii._id) {
+                                                                return ii.techId.name
+
+                                                            }
+                                                            else {
+                                                                return
+                                                            }
+                                                        })}
+                                                    />}
+                                                />
+                                            }
 
                                         })
                                     }
