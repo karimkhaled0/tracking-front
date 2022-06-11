@@ -147,12 +147,16 @@ function Header({ islogged, techProfile = true, techTeam = true }) {
                 <h3 className='h3' onClick={homeHandler}>Tracking information system</h3>
             </div>
             {/* Middle */}
-            <div className='flex space-x-10'>
-                <button className={task ? "h3 text-blue-500" : "h3 text-gray-500"} onClick={taskHandler}>Tasks</button>
-                <button className={tech ? "h3 text-blue-500" : "h3 text-gray-500"} onClick={techHandler}>Technicals</button>
-                <button className={rep ? "h3 text-blue-500" : "h3 text-gray-500"} onClick={teamsHandler}>Teams</button>
-                <button className={msg ? "h3 text-blue-500" : "h3 text-gray-500"} onClick={msgHandler}>Messages</button>
-            </div>
+            {
+                islogged ? (
+                    <div className='flex space-x-10'>
+                        <button className={task ? "h3 text-blue-500" : "h3 text-gray-500"} onClick={taskHandler}>Tasks</button>
+                        <button className={tech ? "h3 text-blue-500" : "h3 text-gray-500"} onClick={techHandler}>Technicals</button>
+                        <button className={rep ? "h3 text-blue-500" : "h3 text-gray-500"} onClick={teamsHandler}>Teams</button>
+                        <button className={msg ? "h3 text-blue-500" : "h3 text-gray-500"} onClick={msgHandler}>Messages</button>
+                    </div>
+                ) : null
+            }
             {/* Right Login/signup */}
             {islogged ? (
                 <div className='grid grid-row-3 relative'>
@@ -187,7 +191,7 @@ function Header({ islogged, techProfile = true, techTeam = true }) {
                     </div>
                 </div>
             ) : (
-                < div className='flex justify-end space-x-3 items-center'>
+                < div className='flex justify-end space-x-3 items-center col-span-2'>
                     <button className='px-5 py-2 border rounded-full button text-blue-700' onClick={signin}>Sign in</button>
                 </div>
             )}

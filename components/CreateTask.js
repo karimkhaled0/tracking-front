@@ -214,7 +214,6 @@ function CreateTask() {
             setAddress(res.features[0].place_name)
         }
     }, [coord])
-    console.log(categId)
     return (
         <div>
             <button className='button px-5 py-2 border rounded-lg bg-blue-500 text-white' onClick={closeModal1}>Create Task</button>
@@ -479,7 +478,7 @@ function CreateTask() {
                                                 {/* Technical select */}
                                                 <div>
                                                     <div className='flex items-center space-x-2 mt-5'>
-                                                        <h1 className='text-lg text-gray-500'>Team</h1>
+                                                        <h1 className='text-lg text-gray-500'>Technical</h1>
                                                         <ExclamationCircleIcon className={techError ? 'h-5 text-red-500' : 'hidden'} />
                                                     </div>
                                                     <select onChange={(e) => {
