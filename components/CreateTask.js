@@ -117,7 +117,6 @@ function CreateTask() {
         endDate: endDate,
         key: 'selection',
     }
-
     // Task body
     const [description, setDescription] = useState('')
     const [phoneNumber, setPhoneNumber] = useState('')
@@ -125,63 +124,70 @@ function CreateTask() {
     const [address, setAddress] = useState('')
     // Create task function (POST)
     const createTask = async () => {
-        const res = await fetch(`http://localhost:8000/api/task`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${localStorage.token}`
-            },
-            body: JSON.stringify({
-                location: address,
-                customerName: customerName,
-                customerPhonenumber: phoneNumber,
-                category: categId,
-                description, description,
-                duration: '1d',
-                startDate: format(startDate, 'yyyy-MM-dd'),
-                endDate: format(endDate, 'yyyy-MM-dd'),
-                techId: technical,
-                coordinates: {
-                    long: coord.lng,
-                    lat: coord.lat,
-                    zoom: 10
-                }
-            })
+        try {
+            const res = await fetch(`http://localhost:8000/api/task`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': `Bearer ${localStorage.token}`
+                },
+                body: JSON.stringify({
+                    location: address,
+                    customerName: customerName,
+                    customerPhonenumber: phoneNumber,
+                    category: categId,
+                    description, description,
+                    duration: '1d',
+                    startDate: format(startDate, 'yyyy-MM-dd'),
+                    endDate: format(endDate, 'yyyy-MM-dd'),
+                    techId: technical,
+                    coordinates: {
+                        long: coord.lng,
+                        lat: coord.lat,
+                        zoom: 10
+                    }
+                })
 
-        }).then((t) => t.json())
-        // Errors handler and valdiation
-        const error = res.errors
-        if (!error && !techTrackError) {
-            setProg(!prog)
-            setTimeout(() => {
-                window.location.reload()
-            }, 2000);
-        } else {
-            if (error.location) {
-                setModal(!modal)
-                setLocationError(true)
+            }).then((t) => t.json())
+            // Errors handler and valdiation
+            if (!res.errors && !techTrackError) {
+                setProg(!prog)
+                setTimeout(() => {
+                    window.location.reload()
+                }, 2000);
+            } else {
+                if (res.errors?.location) {
+                    setModal(!modal)
+                    setLocationError(true)
+                }
+                if (res.errors?.category) {
+                    setModal2(!modal2)
+                    setCategoryError(true)
+                }
+                if (res.errors?.customerName) {
+                    setModal(!modal)
+                    setCustomerNameError(true)
+                }
+                if (res.errors?.phonenumber) {
+                    setModal(!modal)
+                    setPhoneNumberError(true)
+                }
+                if (res.errors?.description) {
+                    setModal(!modal)
+                    setDescriptionError(true)
+                }
+                if (techTrackError) {
+                    setModal2(!modal2)
+                    setTechError(true)
+                }
             }
-            if (error.category) {
-                setModal2(!modal2)
-                setCategoryError(true)
-            }
+        } catch (error) {
             if (techTrackError) {
                 setModal2(!modal2)
                 setTechError(true)
             }
-            if (error.customerName) {
-                setModal(!modal)
-                setCustomerNameError(true)
-            }
-            if (error.phonenumber) {
-                setModal(!modal)
-                setPhoneNumberError(true)
-            }
-            if (error.description) {
-                setModal(!modal)
-                setDescriptionError(true)
-            }
         }
+
     }
     // map Functions
     // save search 
@@ -202,7 +208,11 @@ function CreateTask() {
         setMapSearchRes(res.features)
     }, [address])
     // coordinates for marker which will post to create task
-    const [coord, setCoord] = useState('')
+    const [coord, setCoord] = useState({
+        lng: '31.23944',
+        lat: '30.05611',
+        zoom: 15
+    })
 
     const getAddress = useEffect(async () => {
         const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${coord.lng},${coord.lat}.json?access_token=pk.eyJ1Ijoia2FyaW1raGFsZWRlbG1hd2UiLCJhIjoiY2wxa3l4bDRjMDN6ZDNjb2JnbWpzbGVncSJ9.Hr7IeGn4060vCiHaeJH1Zw`, {
@@ -487,7 +497,7 @@ function CreateTask() {
                                                         setTechError(false)
                                                         setTechTrackError(false)
                                                     }} name="" id="" className='mt-2 pb-2 rounded-lg text-lg mb-5 shadow-md w-96' >
-                                                        <option value={techTrackError} selected disabled hidden>Choose here</option>
+                                                        <option value='' selected disabled hidden>Choose here</option>
                                                         {
                                                             categoryRes?.map((item) => {
                                                                 if (item._id == categId) {
@@ -675,9 +685,7 @@ function CreateTask() {
                                             mapStyle="mapbox://styles/mapbox/streets-v9"
                                             mapboxAccessToken={process.env.mapbox_key}
                                             {...viewport}
-                                            longitude={coord.lng}
-                                            latitude={coord.lat}
-                                            zoom={10}
+                                            onDrag={(nextViewport) => setViewport(nextViewport)}
                                             onWheel={(nextViewport) => setViewport(nextViewport)}
                                         >
                                             <Marker longitude={coord ? (coord.lng) : null} latitude={coord ? (coord.lat) : null} anchor="right" color='#FF0000'>

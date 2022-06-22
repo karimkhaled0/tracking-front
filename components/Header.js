@@ -118,7 +118,7 @@ function Header({ islogged, techProfile = true, techTeam = true }) {
                 'authorization': `Bearer ${localStorage.token}`
             }
         }).then((r) => r.json()).catch((e) => console.log(e))
-        if (res.data) {
+        if (res?.data) {
             setDisplayName(res.data.name)
             setDisplayEmail(res.data.loginId)
             if (res.data.changePasswordCounter == 0) {
@@ -176,8 +176,10 @@ function Header({ islogged, techProfile = true, techTeam = true }) {
                         </div>
                         <ul className="py-1" aria-labelledby="dropdown">
                             <li>
-                                <a href={`/profile/${displayName}`} className="text-sm hover:bg-gray-100 text-gray-700 
-                                block px-4 py-2">Profile</a>
+                                <button className="text-sm hover:bg-gray-100 text-gray-700 
+                                block px-4 py-2" onClick={() => {
+                                        router.push(`/profile/${displayName}`)
+                                    }}>Profile</button>
                             </li>
                             <li>
                                 <a href="#" className="text-sm hover:bg-gray-100 text-gray-700 

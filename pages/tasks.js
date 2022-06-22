@@ -95,11 +95,11 @@ function Tasks() {
                 'authorization': `Bearer ${localStorage.token}`
             }
         }).then((r) => r.json()).catch((e) => console.log(e))
-        if (res.data.isTeamLeader) {
+        if (res.data?.isTeamLeader) {
             setTeamLeader(true)
             setTeamLeaderCategory(res.data.category)
         }
-        if (res.data.isAdmin) {
+        if (res.data?.isAdmin) {
             setAdmin(true)
         }
 
@@ -155,8 +155,8 @@ function Tasks() {
                                                 description={i.description}
                                                 endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
                                                 technical={taskRes?.map((ii) => {
-                                                    if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                        return ii.techId.name
+                                                    if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                        return ii.techId?.name ? ii.techId.name : 'Removed User'
                                                     }
                                                     else {
                                                         return
@@ -176,8 +176,8 @@ function Tasks() {
                                                     review={i.inReview}
                                                     finished={i.finished}
                                                     tech={taskRes?.map((ii) => {
-                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                            return ii.techId.name
+                                                        if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                            return ii.techId?.name ? ii.techId.name : 'Removed User'
 
                                                         }
                                                         else {
@@ -202,8 +202,8 @@ function Tasks() {
                                                     description={i.description}
                                                     endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
                                                     technical={taskRes?.map((ii) => {
-                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                            return ii.techId.name
+                                                        if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                            return ii.techId?.name ? ii.techId.name : 'Removed User'
                                                         }
                                                         else {
                                                             return
@@ -223,8 +223,8 @@ function Tasks() {
                                                         review={i.inReview}
                                                         finished={i.finished}
                                                         tech={taskRes?.map((ii) => {
-                                                            if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                                return ii.techId.name
+                                                            if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                                return ii.techId?.name ? ii.techId.name : 'Removed User'
 
                                                             }
                                                             else {
@@ -256,8 +256,8 @@ function Tasks() {
                                                 description={i.description}
                                                 endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
                                                 technical={taskRes?.map((ii) => {
-                                                    if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                        return ii.techId.name
+                                                    if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                        return ii.techId?.name ? ii.techId.name : 'Removed User'
                                                     }
                                                     else {
                                                         return
@@ -277,8 +277,8 @@ function Tasks() {
                                                     finished={i.finished}
                                                     report={i.report}
                                                     tech={taskRes?.map((ii) => {
-                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                            return ii.techId.name
+                                                        if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                            return ii.techId?.name ? ii.techId.name : 'Removed User'
 
                                                         }
                                                         else {
@@ -303,8 +303,8 @@ function Tasks() {
                                                     description={i.description}
                                                     endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
                                                     technical={taskRes?.map((ii) => {
-                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                            return ii.techId.name
+                                                        if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                            return ii.techId?.name ? ii.techId.name : 'Removed User'
                                                         }
                                                         else {
                                                             return
@@ -325,8 +325,8 @@ function Tasks() {
                                                         report={i.report}
 
                                                         tech={taskRes?.map((ii) => {
-                                                            if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                                return ii.techId.name
+                                                            if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                                return ii.techId?.name ? ii.techId.name : 'Removed User'
 
                                                             }
                                                             else {
@@ -358,8 +358,8 @@ function Tasks() {
                                                 description={i.description}
                                                 endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
                                                 technical={taskRes?.map((ii) => {
-                                                    if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                        return ii.techId.name
+                                                    if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                        return ii.techId?.name ? ii.techId.name : 'Removed User'
                                                     }
                                                     else {
                                                         return
@@ -380,8 +380,8 @@ function Tasks() {
                                                     report={i.report}
 
                                                     tech={taskRes?.map((ii) => {
-                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                            return ii.techId.name
+                                                        if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                            return ii.techId?.name ? ii.techId.name : 'Removed User'
 
                                                         }
                                                         else {
@@ -406,8 +406,8 @@ function Tasks() {
                                                     description={i.description}
                                                     endDate={format(parseISO(i.endDate.split('T')[0]), 'dd/MMMM/yyyy')}
                                                     technical={taskRes?.map((ii) => {
-                                                        if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                            return ii.techId.name
+                                                        if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                            return ii.techId?.name ? ii.techId.name : 'Removed User'
                                                         }
                                                         else {
                                                             return
@@ -428,8 +428,8 @@ function Tasks() {
                                                         report={i.report}
 
                                                         tech={taskRes?.map((ii) => {
-                                                            if (i.techId == ii.techId._id && i._id == ii._id) {
-                                                                return ii.techId.name
+                                                            if ((i.techId == ii.techId?._id || true) && i._id == ii._id) {
+                                                                return ii.techId?.name ? ii.techId.name : 'Removed User'
 
                                                             }
                                                             else {
