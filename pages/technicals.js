@@ -5,12 +5,21 @@ import { DotsHorizontalIcon, DotsVerticalIcon, ExclamationCircleIcon, PlusCircle
 import { LocationMarkerIcon, ChatAltIcon, DotsCircleHorizontalIcon } from '@heroicons/react/outline'
 import Avatar from 'react-avatar';
 import { Dialog, Transition } from '@headlessui/react'
+import { io } from "socket.io-client";
 
-
+const socket = io("http://localhost:8000");
+socket.on("connect", (data) => {
+  console.log("connected", data);
+});
 
 function Technicals() {
+
+  const [location, setLocation] = useState()
   const router = useRouter()
 
+  socket.on('location:send', (data) => {
+    setLocation(data)
+  })
 
   // Modal
   const [modal, setModal] = useState(false)
@@ -244,7 +253,12 @@ function Technicals() {
                         )
                       }
                       <div className='flex space-x-2'>
-                        <LocationMarkerIcon className='h-5 text-gray-500 cursor-pointer' />
+                        <LocationMarkerIcon onClick={() => {
+                          router.push({
+                            pathname: '/map',
+                            query: location
+                          })
+                        }} className='h-5 text-gray-500 cursor-pointer' />
                         <ChatAltIcon className='h-5 text-gray-500 cursor-pointer' />
                       </div>
                     </div>

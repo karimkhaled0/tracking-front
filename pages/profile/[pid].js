@@ -157,12 +157,13 @@ const teams = () => {
                 'Content-Type': 'application/json',
                 'authorization': `Bearer ${localStorage.token}`
             },
-        }).then((t) => t.json()).catch((e) => console.log(e))
+        }).then((t) => t.json())
         if (res.message == 'deleted') {
             router.push({
                 pathname: '/technicals'
             })
         }
+        console.log('res: ' + res)
     }
     console.log(myProfile)
     return (
