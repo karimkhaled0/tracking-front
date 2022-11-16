@@ -23,7 +23,7 @@ function GetTasks({ customerName, location, description, endDate, category, View
                 <h3 className='text-lg text-gray-500 font-extralight'>{location}</h3>
             </div>
             <div className='flex items-center space-x-2'>
-                <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-hide mr-5' title="Scroll down">
+                <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-none mr-5' title="Scroll down">
                     {description}
                 </div>
             </div>

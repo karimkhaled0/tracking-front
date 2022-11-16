@@ -1,407 +1,468 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
+import { useQuery } from '@tanstack/react-query'
+import { getUserData } from '../fetching/getUserData'
 import { useRouter } from 'next/router'
-import { ChevronDoubleRightIcon, PlusIcon, SearchIcon } from '@heroicons/react/solid'
-import Avatar from 'react-avatar'
-import ChatUsers from '../components/ChatUsers'
-import ChatMessages from '../components/ChatMessages'
-import { io } from "socket.io-client";
-const socket = io("http://localhost:8000");
-let allChat = []
-
 function Messages() {
-    const router = useRouter()
-
-    const [user, setUser] = useState(false)
-    const [allRooms, setAllRooms] = useState([])
-    const [create, setCreate] = useState(false)
-    const [technicals, setTechnicals] = useState([])
-    const [seconedMember, setSeconedMember] = useState('')
-    const [userData, setUserData] = useState([])
-    const [searchTech, setSearchTech] = useState('')
-    const [selected, setSelected] = useState(false)
-    const [chatMessagesName, setChatMessagesName] = useState('')
-    const [message, setMessage] = useState('')
-    const [messagesByRoom, setMessagesByRoom] = useState([])
-    const [roomId, setRoomId] = useState('')
-    const [bob, setBob] = useState(false)
-    const [lastMessage, setLastMessage] = useState('')
-    socket.on("msg:get", (data) => {
-        for (let index = 0; index < data.msg.messages.length; index++) {
-            allChat[index] = data.msg.messages[index]
-        }
-        setBob(!bob)
-        // setLastMessage()
-        console.log(allChat[allChat.length - 1])
-    });
-    const sendMessage = () => {
-        let data = {
-            author: userData._id,
-            content: message,
-            roomId: roomId
-        }
-        socket.emit('msg:post', data)
-        setMessage('')
-    }
-
-    // get technicals
-    const getTechnicals = useEffect(async () => {
-        const res = await fetch('http://localhost:8000/api/user/technicals', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${localStorage.token}`
-            }
-        }).then((t) => t.json()).catch((e) => {
-            router.push({
-                pathname: '/signin'
-            })
-            localStorage.removeItem('token')
-        })
-        setTechnicals(res.data)
-    }, [])
-
-    const loggedHandler = useEffect(async () => {
-        const res = await fetch('http://localhost:8000/api/user/me', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${localStorage.token}`
-            }
-        }).then((r) => r.json())
-        const error = res.error
-        if (error == 'Not Authorized') {
-            localStorage.removeItem('token')
-            router.push({
-                pathname: '/signin'
-            })
-        } else {
-            setUserData(res.data)
-            setUser(true)
-        }
-
-    }, [])
-
-    const createRoom = async () => {
-        const res = await fetch('http://localhost:8000/api/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${localStorage.token}`
-            },
-            body: JSON.stringify({
-                name: 'First',
-                members: [
-                    userData._id,
-                    seconedMember
-                ],
-            })
-        }).then((t) => t.json())
-        const ress = await fetch(`http://localhost:8000/api/user/${seconedMember}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${localStorage.token}`
-            },
-            body: JSON.stringify({
-                inRoom: true
-            })
-        }).then((t) => t.json())
-        setCreate(!create)
-    }
-
-    const getRooms = useEffect(() => {
-        const getRoom = async () => {
-            const res = await fetch('http://localhost:8000/api/chat', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'authorization': `Bearer ${localStorage.token}`
-                },
-            }).then((t) => t.json())
-            setAllRooms(res?.rooms)
-        }
-        getRoom()
-    }, [!create])
-    // const messageSend = useEffect(() => {
-    //     const updateRoom = async () => {
-    //         const res = await fetch('http://localhost:8000/api/chat/62b3d6b630c1f3377bdde51a', {
-    //             method: 'PUT',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'authorization': `Bearer ${localStorage.token}`
-    //             },
-    //             body: JSON.stringify({
-    //                 messages: {
-    //                     author: '62511b5ae1c7222e0364f3a2',
-    //                     content: 'Hi Ahmed'
-    //                 }
-    //             })
-    //         }).then((t) => t.json())
-    //         console.log(res)
-    //     }
-    //     updateRoom()
-    // }, [])
-    return (
-        <div>
-            <Header islogged={user} />
-            {/* Messanger  */}
-            <main className='mx-10 grid grid-cols-3 space-x-5'>
-
-                {/* People */}
-                <section className='mt-5 border-2 border-gray-300 shadow-xl'>
-                    {/* Search */}
-                    <div className='bg-gray-100 py-1'>
-                        <div className="flex justify-between my-5 items-center">
-                            <div className='flex items-center rounded-lg py-1 border-2 shadow-md bg-white ml-4'>
-                                <input
-                                    className="bg-transparent pl-2 pr-20 text-sm text-gray-600 placeholder-gray-400 outline-none"
-                                    type="text"
-                                    placeholder={"Start your search"}
-                                />
-                                <SearchIcon
-                                    className="h-8 cursor-pointer rounded-full bg-blue-600 p-2 text-white flex mx-3"
-                                />
-                            </div>
-                            <button
-                                onClick={() => {
-                                    setCreate(!create)
-                                }}
-                                type="button"
-                                className="mr-2 inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
-                            >
-                                Create chat
-                            </button>
-                        </div>
+  // TODO: Customer service chat (Admins&TeamLeaders are customer service) - (Technical is the customer)
+  // TODO: the chat will have end (Delete) and start (Create)
+  const router = useRouter()
+  const [user, setUser] = useState(false)
+  // Get user data
+  const { data, refetch, isError } = useQuery(['userData'], getUserData, {
+    staleTime: Infinity,
+  })
+  useEffect(() => {
+    if (!data)
+      return router.push({
+        pathname: '/',
+      })
+    setUser(true)
+  }, [user, data])
+  console.log(data)
+  return (
+    <div className="max-h-[650px]">
+      <Header islogged={user} />
+      <div className="flex h-[680px] flex-row text-gray-800">
+        {/* Chats */}
+        <div className="flex w-96 flex-shrink-0 flex-row bg-gray-100 p-4">
+          <div className="-mr-4 flex h-full w-full flex-col py-4 pl-4 pr-4">
+            {/* Messages head */}
+            <div className="flex flex-row items-center">
+              <div className="flex flex-row items-center">
+                <div className="text-xl font-semibold">Messages</div>
+                <div className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white">
+                  5
+                </div>
+              </div>
+              <div className="ml-auto">
+                <button className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                  <svg
+                    className="h-4 w-4 stroke-current"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            {/* Options */}
+            <div className="mt-5 ">
+              <ul className="mx-auto flex flex-row items-center justify-between">
+                <li>
+                  <a
+                    href="#"
+                    className="relative flex items-center pb-3 text-xs font-semibold text-indigo-800"
+                  >
+                    <span>All Conversations</span>
+                    <span className="absolute left-0 bottom-0 h-1 w-16 rounded-full bg-indigo-800"></span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="flex items-center pb-3 text-xs font-semibold text-gray-700"
+                  >
+                    <span>Archived</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="flex items-center pb-3 text-xs font-semibold text-gray-700"
+                  >
+                    <span>Starred</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            {/* Team chat */}
+            <div>
+              <div className="mt-5">
+                <div className="text-xs font-semibold uppercase text-gray-400">
+                  Team
+                </div>
+              </div>
+              <div className="mt-2">
+                <div className="-mx-4 flex flex-col">
+                  <div className="relative flex flex-row items-center p-4">
+                    <div className="absolute right-0 top-0 mr-4 mt-3 text-xs text-gray-500">
+                      5 min
                     </div>
-                    {/* Technicals */}
-                    <div className='h-[520px] overflow-scroll scrollbar-hide'>
-                        {/* User */}
-                        {
-                            allRooms?.map((item) => {
-                                return (
-                                    <div
-                                        key={item._id}
-                                        onClick={() => {
-                                            allChat = []
-                                            setRoomId(item._id)
-                                            setChatMessagesName(item?.members[1].name)
-                                            const data = {
-                                                roomId: item._id
-                                            }
-                                            socket.emit('roomId', data)
-                                            socket.on("msg:get", (data) => {
-                                                for (let index = 0; index < data.msg.messages.length; index++) {
-                                                    allChat[index] = data.msg.messages[index]
-                                                }
-                                                setBob(!bob)
-                                            });
-                                        }}
-                                    >
-                                        <ChatUsers
-                                            key={item._id}
-                                            name={item.members[1].name}
-                                            lastMessage={item.lastMessage ? item.lastMessage : ''}
-                                        />
-                                    </div>
-                                )
-                            })
-                        }
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
+                      T
                     </div>
-                </section>
-
-
-
-                {/* Chat */}
-                <section className='mt-5 border-2 border-gray-300 shadow-xl col-span-2'>
-                    {
-                        create ? (
-                            // Create Room
-                            <div>
-                                <div className='bg-gray-100 py-1'>
-                                    <div className="flex justify-between my-5 items-center">
-                                        <div className='flex items-center rounded-lg py-1 border-2 shadow-md bg-white ml-4'>
-                                            <h1 className='ml-1'>to: </h1>
-                                            <input
-                                                className="bg-transparent pl-2 pr-80 text-sm text-gray-600 placeholder-gray-400 outline-none"
-                                                type="text"
-                                                placeholder={"Start your search"}
-                                                onChange={(e) => setSearchTech(e.target.value)}
-                                                value={searchTech}
-                                            />
-                                            <SearchIcon
-                                                className="h-8 cursor-pointer rounded-full bg-blue-600 p-2 text-white flex mx-3"
-                                            />
-                                        </div>
-                                        <div>
-                                            <button
-                                                onClick={createRoom}
-                                                type="button"
-                                                className={selected ? "mr-2 inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm" : "mr-2justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm hidden"}
-                                            >
-                                                Start Chat
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    setCreate(!create)
-                                                }}
-                                                type="button"
-                                                className="mr-2 inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm"
-                                            >
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                {
-                                    technicals.filter((val) => {
-                                        if (val.name.toLowerCase().includes(searchTech.toLowerCase())) {
-                                            return val
-                                        }
-                                    })?.map((item) => {
-                                        if (!item.inRoom) {
-                                            return (
-                                                <button
-                                                    onClick={() => {
-                                                        setSelected(!selected)
-                                                        setSeconedMember(item._id)
-
-                                                    }}
-                                                    className='border w-full rounded-md bg-white shadow-md p-5 space-y-8 cursor-pointer transform transition ease-out active:scale-90 duration-200'>
-                                                    <div className='flex items-center space-x-8 justify-between'>
-                                                        <h1 className='text-xl'>{item.name}</h1>
-                                                        {
-                                                            item.isTeamLeader ? (
-                                                                <h1 className='text-blue-500'>Team Leader</h1>
-                                                            ) : (
-                                                                <h1 className='text-gray-500'>Technical</h1>
-                                                            )
-
-                                                        }
-                                                    </div>
-                                                </button>
-                                            )
-                                        }
-                                    })
-                                }
-
-                            </div>
-                        ) : (
-                            // Show message
-                            <div>
-                                {/* User data */}
-                                <div className='bg-gray-100 py-0.5'>
-                                    {/* Data */}
-                                    <div className="flex justify-between my-5 items-center mx-5">
-                                        {/* Name and Photo */}
-                                        <div className='flex items-center space-x-5'>
-                                            <Avatar className='rounded-full' name={chatMessagesName[0]} size='60' />
-                                            <h1 className='text-xl'>{chatMessagesName}</h1>
-                                        </div>
-                                        {/* Search & delete Chat*/}
-                                        <div className='flex items-center space-x-5'>
-                                            <SearchIcon
-                                                className="h-10 cursor-pointer rounded-full bg-blue-600 p-2 text-white flex mx-3"
-                                            />
-                                            <button
-                                                type="button"
-                                                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm"
-                                            >
-                                                Delete chat
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/* Chat Page */}
-                                <div className='h-[520px] overflow-scroll scrollbar-hide grid grid-row-5'>
-                                    {
-                                        bob ? (
-                                            allChat.map((item) => {
-                                                if (item.author == userData._id) {
-                                                    {/* Sender */ }
-                                                    return (
-                                                        <div className=' justify-self-end row-span-2'>
-                                                            <div className='mx-10 my-7 space-y-2 flex items-start space-x-2 w-2/4'>
-                                                                <div className='flex items-center space-x-2 bg-blue-300 shadow-lg rounded-lg'>
-                                                                    <div className=' mt-2 w-full h-fit mr-5 text-xl text-gray-800 font-semibold mx-5 mb-2'>
-                                                                        <h1 className='justify-self-end'>{item.content}</h1>
-                                                                    </div>
-                                                                </div>
-                                                                <Avatar className='rounded-full' name={'K'} size='30' color='green' />
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                }
-                                                else {
-                                                    return (
-                                                        <div className='justify-self-end row-span-2'>
-                                                            <div className='mx-10 my-7 space-y-2 flex items-start space-x-2 w-2/4'>
-                                                                <Avatar className='rounded-full' name={chatMessagesName[0]} size='30' color='green' />
-                                                                <div className='flex items-center space-x-2 bg-gray-100 shadow-lg rounded-lg'>
-                                                                    <div className=' mt-2 w-full h-fit mr-5 text-xl text-gray-800 font-semibold mx-5 mb-2'>
-                                                                        <h1>{item.content}</h1>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                }
-                                            })
-                                        ) : (
-                                            allChat.map((item) => {
-                                                if (item.author == userData._id) {
-                                                    {/* Sender */ }
-                                                    return (
-                                                        <div className=' justify-self-end'>
-                                                            <div className='mx-10 my-7 space-y-2 flex items-start space-x-2 w-2/4'>
-                                                                <div className='flex items-center space-x-2 bg-blue-300 shadow-lg rounded-lg'>
-                                                                    <div className=' mt-2 w-full h-fit mr-5 text-xl text-gray-800 font-semibold mx-5 mb-2'>
-                                                                        <h1 className='justify-self-end'>{item.content}</h1>
-                                                                    </div>
-                                                                </div>
-                                                                <Avatar className='rounded-full' name={'K'} size='30' color='green' />
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                }
-                                                else {
-                                                    return (
-                                                        <div className='mx-10 my-7 space-y-2 flex items-start space-x-2 justify-self-start w-2/4'>
-                                                            <Avatar className='rounded-full' name={chatMessagesName[0]} size='30' color='green' />
-                                                            <div className='flex items-center space-x-2 bg-gray-100 shadow-lg rounded-lg'>
-                                                                <div className=' mt-2 w-full h-fit mr-5 text-xl text-gray-800 font-semibold mx-5 mb-2'>
-                                                                    <h1>{item.content}</h1>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                }
-                                            })
-                                        )
-                                    }
-
-
-                                </div>
-                                {/* KeyBoard */}
-                                <div className='flex justify-between items-center bg-gray-100 w-full max-w-full' >
-                                    <textarea value={message} onChange={(e) => {
-                                        setMessage(e.target.value)
-                                    }} type="text" className="border-none outline-none resize-none w-full shadow-md bg-white p-2 scrollbar-hide mt-2 mb-3 text-lg rounded-lg pl-3" rows="2" cols="20">
-
-                                    </textarea>
-                                    <ChevronDoubleRightIcon
-                                        onClick={sendMessage}
-                                        className="h-8 cursor-pointer rounded-full bg-blue-400 p-2 text-white flex mx-3"
-                                    />
-                                </div>
-                            </div>
-                        )
-                    }
-                </section>
-            </main>
-
+                    <div className="ml-3 flex flex-grow flex-col">
+                      <div className="text-sm font-medium">Cuberto</div>
+                      <div className="w-44 truncate text-xs">
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Debitis, doloribus?
+                      </div>
+                    </div>
+                    <div className="ml-2 mb-1 flex-shrink-0 self-end">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                        5
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-center border-l-2 border-red-500 bg-gradient-to-r from-red-100 to-transparent p-4">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
+                      T
+                    </div>
+                    <div className="ml-3 flex flex-grow flex-col">
+                      <div className="flex items-center">
+                        <div className="text-sm font-medium">UI Art Design</div>
+                        <div className="ml-2 h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <div className="w-40 truncate text-xs">
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Debitis, doloribus?
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Personal chat */}
+            <div>
+              <div className="mt-5">
+                <div className="text-xs font-semibold uppercase text-gray-400">
+                  Personal
+                </div>
+              </div>
+              <div className="relative h-72 overflow-y-scroll pt-2 scrollbar-none">
+                <div className="-mx-4 flex h-full flex-col divide-y overflow-y-auto scrollbar-none">
+                  <div className="relative flex flex-row items-center p-4">
+                    <div className="absolute right-0 top-0 mr-4 mt-3 text-xs text-gray-500">
+                      2 hours ago
+                    </div>
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
+                      T
+                    </div>
+                    <div className="ml-3 flex flex-grow flex-col">
+                      <div className="text-sm font-medium">Flo Steinle</div>
+                      <div className="w-40 truncate text-xs">
+                        Good after noon! how can i help you?
+                      </div>
+                    </div>
+                    <div className="ml-2 mb-1 flex-shrink-0 self-end">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                        3
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-center p-4">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
+                      T
+                    </div>
+                    <div className="ml-3 flex flex-grow flex-col">
+                      <div className="flex items-center">
+                        <div className="text-sm font-medium">Sarah D</div>
+                        <div className="ml-2 h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <div className="w-40 truncate text-xs">
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Debitis, doloribus?
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-center p-4">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
+                      T
+                    </div>
+                    <div className="ml-3 flex flex-grow flex-col">
+                      <div className="flex items-center">
+                        <div className="text-sm font-medium">Sarah D</div>
+                        <div className="ml-2 h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <div className="w-40 truncate text-xs">
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Debitis, doloribus?
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-center p-4">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
+                      T
+                    </div>
+                    <div className="ml-3 flex flex-grow flex-col">
+                      <div className="flex items-center">
+                        <div className="text-sm font-medium">Sarah D</div>
+                        <div className="ml-2 h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <div className="w-40 truncate text-xs">
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Debitis, doloribus?
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-center p-4">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
+                      T
+                    </div>
+                    <div className="ml-3 flex flex-grow flex-col">
+                      <div className="flex items-center">
+                        <div className="text-sm font-medium">Sarah D</div>
+                        <div className="ml-2 h-2 w-2 rounded-full bg-green-500"></div>
+                      </div>
+                      <div className="w-40 truncate text-xs">
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Debitis, doloribus?
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute bottom-0 right-0 mr-2">
+                  <button className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-sm">
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-    )
+        {/* Messenger */}
+        <div className="flex h-full w-full flex-col bg-white px-4 py-6">
+          {/* head */}
+          <div className="flex flex-row items-center rounded-2xl py-4 px-6 shadow">
+            {/* Firt letter above */}
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-500 text-pink-100">
+              T
+            </div>
+            <div className="ml-3 flex flex-col">
+              {/* Name above */}
+              <div className="text-sm font-semibold">UI Art Design</div>
+              {/* Status */}
+              <div className="text-xs text-gray-500">Active</div>
+            </div>
+            <div className="ml-auto">
+              <ul className="flex flex-row items-center space-x-2">
+                <li>
+                  <a
+                    href="#"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200"
+                  >
+                    <span>
+                      <svg
+                        className="h-5 w-5"
+                        fill="currentColor"
+                        stroke="none"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                        ></path>
+                      </svg>
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200"
+                  >
+                    <span>
+                      <svg
+                        className="h-5 w-5"
+                        fill="currentColor"
+                        stroke="none"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        ></path>
+                      </svg>
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200"
+                  >
+                    <span>
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                        ></path>
+                      </svg>
+                    </span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          {/* Chat */}
+          <div className="h-full overflow-x-hidden overflow-y-scroll py-4 scrollbar-none">
+            <div className="h-full overflow-x-hidden overflow-y-scroll scrollbar-none">
+              <div className="grid grid-cols-12 gap-y-2">
+                {/* Reciver */}
+                <div className="col-start-1 col-end-8 rounded-lg p-3">
+                  <div className="flex flex-row items-center">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
+                      A
+                    </div>
+                    <div className="relative ml-3 rounded-xl bg-white py-2 px-4 text-sm shadow">
+                      <div>Hey How are you today?</div>
+                    </div>
+                  </div>
+                </div>
+                {/* Reciver */}
+                <div className="col-start-1 col-end-8 rounded-lg p-3">
+                  <div className="flex flex-row items-center">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
+                      A
+                    </div>
+                    <div className="relative ml-3 rounded-xl bg-white py-2 px-4 text-sm shadow">
+                      <div>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Vel ipsa commodi illum saepe numquam maxime
+                        asperiores voluptate sit, minima perspiciatis.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Sender */}
+                <div className="col-start-6 col-end-13 rounded-lg p-3">
+                  <div className="flex flex-row-reverse items-center justify-start">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
+                      A
+                    </div>
+                    <div className="relative mr-3 rounded-xl bg-indigo-100 py-2 px-4 text-sm shadow">
+                      <div>
+                        Lorem ipsum dolor sit, amet consectetur adipisicing. ?
+                      </div>
+                      <div className="absolute bottom-0 right-0 -mb-5 mr-2 text-xs text-gray-500">
+                        Seen
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Bottom */}
+          <div className="flex flex-row items-center">
+            <div className="flex h-12 w-full flex-row items-center rounded-3xl border px-2">
+              <button className="ml-1 flex h-10 w-10 items-center justify-center text-gray-400">
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                  ></path>
+                </svg>
+              </button>
+              <div className="w-full">
+                <input
+                  type="text"
+                  className="flex h-10 w-full items-center border border-transparent text-sm focus:outline-none"
+                  placeholder="Type your message...."
+                />
+              </div>
+              <div className="flex flex-row">
+                <button className="flex h-10 w-8 items-center justify-center text-gray-400">
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                    ></path>
+                  </svg>
+                </button>
+                <button className="ml-1 mr-2 flex h-10 w-8 items-center justify-center text-gray-400">
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="ml-6">
+              <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-white hover:bg-gray-300">
+                <svg
+                  className="-mr-px h-5 w-5 rotate-90 transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default Messages

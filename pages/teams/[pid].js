@@ -298,7 +298,7 @@ const teams = () => {
                                                     placeholder={"Search here"}
                                                     onChange={(e) => setSearchTech(e.target.value)}
                                                 />
-                                                <div className='overflow-y-scroll flex flex-col space-y-1 h-40 scrollbar-hide'>
+                                                <div className='overflow-y-scroll flex flex-col space-y-1 h-40 scrollbar-none'>
                                                     {
                                                         teamLeader ?
                                                             technicals.filter((val) => {
@@ -363,7 +363,7 @@ const teams = () => {
                                     <div className='mt-5'>
                                         <h1 className='h1'>Technicals of the Team </h1>
                                         <div title='scroll down' className='border px-5 py-1 flex justify-between h-32 
-                                        border-blue-200 overflow-y-scroll scrollbar-hide'>
+                                        border-blue-200 overflow-y-scroll scrollbar-none'>
                                             <div className=''>
                                                 {technicals?.map((i) => {
                                                     let names

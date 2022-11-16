@@ -265,10 +265,10 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
                           updateTask ? (
                             <textarea type="text" value={updatedDescription} onChange={(e) => {
                               setUpdatedDescription(e.target.value)
-                            }} title="Scroll down" className="w-full shadow-md bg-white p-2 scrollbar-hide mt-2 mb-3 text-lg rounded-lg pl-3" rows="3" cols="50"></textarea>
+                            }} title="Scroll down" className="w-full shadow-md bg-white p-2 scrollbar-none mt-2 mb-3 text-lg rounded-lg pl-3" rows="3" cols="50"></textarea>
                           ) : (
                             <div className='flex items-center space-x-2 bg-white shadow-md rounded-lg'>
-                              <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-hide mr-5 text-xl text-gray-800 font-semibold mx-5' title="Scroll down">
+                              <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-none mr-5 text-xl text-gray-800 font-semibold mx-5' title="Scroll down">
                                 {description}
                               </div>
                             </div>
@@ -668,7 +668,7 @@ text-white py-2 px-5 bg-green-500 rounded-lg cursor-pointer hover:opacity-80 mr-
                           <div className='space-y-2'>
                             <h1 className='text-xl text-gray-500 '>Report</h1>
                             <div className='flex items-center space-x-2 bg-white shadow-md rounded-lg'>
-                              <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-hide mr-5 text-xl text-gray-800 font-semibold mx-5' title="Scroll down">
+                              <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-none mr-5 text-xl text-gray-800 font-semibold mx-5' title="Scroll down">
                                 {report}
                               </div>
                             </div>
@@ -692,7 +692,7 @@ text-white py-2 px-5 bg-green-500 rounded-lg cursor-pointer hover:opacity-80 mr-
                           <div className='space-y-2'>
                             <h1 className='text-xl text-gray-500 '>Report</h1>
                             <div className='flex items-center space-x-2 bg-white shadow-md rounded-lg'>
-                              <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-hide mr-5 text-xl text-gray-800 font-semibold mx-5' title="Scroll down">
+                              <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-none mr-5 text-xl text-gray-800 font-semibold mx-5' title="Scroll down">
                                 {report}
                               </div>
                             </div>

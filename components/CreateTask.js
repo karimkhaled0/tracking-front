@@ -299,7 +299,7 @@ function CreateTask() {
                                                     setDescription(e.target.value)
                                                     // hide valdiation while typing
                                                     setDescriptionError(false)
-                                                }} title="Scroll down" className={descriptionError ? "w-full shadow-md bg-white p-2 scrollbar-hide mt-2 mb-3 text-lg rounded-lg pl-3 border border-red-500" : "w-full shadow-md bg-white p-2 scrollbar-hide mt-2 mb-3 text-lg rounded-lg pl-3"} rows="3" cols="50"></textarea>
+                                                }} title="Scroll down" className={descriptionError ? "w-full shadow-md bg-white p-2 scrollbar-none mt-2 mb-3 text-lg rounded-lg pl-3 border border-red-500" : "w-full shadow-md bg-white p-2 scrollbar-none mt-2 mb-3 text-lg rounded-lg pl-3"} rows="3" cols="50"></textarea>
                                             </div>
                                             {/* Customer name, phoneNumber */}
                                             <div className='mt-5 grid grid-cols-2'>
@@ -619,7 +619,7 @@ function CreateTask() {
                                             </div>
                                             {/* Description */}
                                             <h1 className='text-gray-700 text-lg mt-5'>Description</h1>
-                                            <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-hide' title="Scroll down">
+                                            <div className='flex mt-2 overflow-y-auto w-full h-28 scrollbar-none' title="Scroll down">
                                                 {description}
                                             </div>
                                             {/* Customer name & phone number */}

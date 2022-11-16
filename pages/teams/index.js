@@ -1,5 +1,5 @@
 import React, { Fragment, useRef, useEffect, useState } from 'react'
-import Header from '../components/Header'
+import Header from '../../components/Header'
 import { useRouter } from 'next/router'
 import { DotsHorizontalIcon, ExclamationCircleIcon, XIcon } from '@heroicons/react/solid'
 import { PlusIcon, ExclamationIcon, PlusCircleIcon } from '@heroicons/react/outline'
@@ -297,7 +297,7 @@ function Teams() {
                                                                         placeholder={"Add technicals to team"}
                                                                         onChange={(e) => setSearchTech(e.target.value)}
                                                                     />
-                                                                    <div className='overflow-y-scroll flex flex-col space-y-1 h-40 scrollbar-hide'>
+                                                                    <div className='overflow-y-scroll flex flex-col space-y-1 h-40 scrollbar-none'>
                                                                         {technicals.filter((val) => {
                                                                             if (val.name.toLowerCase().includes(searchTech.toLowerCase()) && !val.isTeamLeader) {
                                                                                 return val
@@ -334,7 +334,7 @@ function Teams() {
                                                                         placeholder={"Add Team leader to team"}
                                                                         onChange={(e) => setSearchTeamLeader(e.target.value)}
                                                                     />
-                                                                    <div className='overflow-y-scroll flex flex-col space-y-1 h-40 scrollbar-hide'>
+                                                                    <div className='overflow-y-scroll flex flex-col space-y-1 h-40 scrollbar-none'>
                                                                         {technicals.filter((val) => {
                                                                             if (val.name.toLowerCase().includes(searchTeamLeader.toLowerCase()) && val.isTeamLeader) {
                                                                                 return val
@@ -365,7 +365,7 @@ function Teams() {
                                                         <div className='mt-5'>
                                                             <h1 className='h1'>Technicals of the Team </h1>
                                                             <div title='scroll down' className='border px-5 py-1 flex justify-between h-32 
-                                        border-blue-200 overflow-y-scroll scrollbar-hide'>
+                                        border-blue-200 overflow-y-scroll scrollbar-none'>
                                                                 <div className=''>
                                                                     {technicals?.map((i) => {
                                                                         let names
@@ -389,7 +389,7 @@ function Teams() {
                                                         <div className='mt-5'>
                                                             <h1 className='h1'>Team Leader of the team</h1>
                                                             <div className='border px-5 py-1 flex justify-between 
-                                        border-blue-200 overflow-y-scroll scrollbar-hide'>
+                                        border-blue-200 overflow-y-scroll scrollbar-none'>
                                                                 <div className=''>
                                                                     {technicals?.map((i) => {
                                                                         let names
