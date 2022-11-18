@@ -1,44 +1,205 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Header from '../components/Header'
 import { useQuery } from '@tanstack/react-query'
 import { getUserData } from '../fetching/getUserData'
 import { useRouter } from 'next/router'
+import { socket } from '../socketConnection/socket'
+import { getAllTechnicals } from '../fetching/getAllTechnicals'
+import { getRooms } from '../fetching/getRooms'
+import axios from 'axios'
+
 function Messages() {
+  var arr = []
+  socket.on('connect', () => {
+    arr.push(socket.id)
+    console.log(arr)
+  })
+
+  socket.on('disconnect', () => {
+    socket.disconnect()
+    arr = []
+    console.log(socket.id) // undefined
+  })
+
   // TODO: Customer service chat (Admins&TeamLeaders are customer service) - (Technical is the customer)
   // TODO: the chat will have end (Delete) and start (Create)
+  const divRef = useRef(null)
+  useEffect(() => {
+    divRef.current.scrollIntoView({ behavior: 'auto' })
+  })
   const router = useRouter()
   const [user, setUser] = useState(false)
-  // Get user data
-  const { data, refetch, isError } = useQuery(['userData'], getUserData, {
-    staleTime: Infinity,
-  })
+  const [chats, setChats] = useState(true)
+  const [creatChat, setCreatChat] = useState(false)
+  const [seconedMember, setSecondMember] = useState('')
+  const [checkedName, setCheckedName] = useState('')
+  const useQueryMultiple = () => {
+    // Get user data
+    const userData = useQuery(['userData'], getUserData, {
+      staleTime: Infinity,
+    })
+    // Get All technicals
+    const allTechnicals = useQuery(['allTechnicals'], getAllTechnicals, {
+      staleTime: Infinity,
+    })
+    // Get Rooms
+    const rooms = useQuery(['rooms'], getRooms, {
+      staleTime: Infinity,
+    })
+    return [userData, allTechnicals, rooms]
+  }
+  const [
+    // Get user data
+    { isLoading: loading1, data: data1, isError: isError1 },
+    // Get All technicals
+    { isLoading: loading2, data: data2, isError: isError2 },
+    // Get Rooms
+    { isLoading: loading3, data: data3, isError: isError3 },
+  ] = useQueryMultiple()
   useEffect(() => {
-    if (!data)
+    if (isError3) return
+    if (isError1)
       return router.push({
         pathname: '/',
       })
     setUser(true)
-  }, [user, data])
-  console.log(data)
+  }, [user, data1])
+
+  const addChat = () => {
+    setChats(!chats)
+    setCreatChat(false)
+    setCheckedName('')
+  }
+
+  const createRoom = async () => {
+    const options = {
+      method: 'POST',
+      url: 'http://localhost:8000/api/chat',
+      headers: {
+        authorization: `Bearer ${localStorage.token}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      data: {
+        name: 'First',
+        members: [data1.data._id, seconedMember],
+      },
+    }
+
+    const res = await axios.request(options).catch(function (error) {
+      console.error(error)
+      return error
+    })
+    return res.data
+  }
   return (
-    <div className="max-h-[650px]">
+    <div className="h-[90vh]">
       <Header islogged={user} />
-      <div className="flex h-[680px] flex-row text-gray-800">
+      <div className="flex h-full flex-row text-gray-800">
         {/* Chats */}
-        <div className="flex w-96 flex-shrink-0 flex-row bg-gray-100 p-4">
-          <div className="-mr-4 flex h-full w-full flex-col py-4 pl-4 pr-4">
-            {/* Messages head */}
-            <div className="flex flex-row items-center">
-              <div className="flex flex-row items-center">
-                <div className="text-xl font-semibold">Messages</div>
-                <div className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white">
-                  5
+        <div className=" flex w-96 flex-shrink-0 flex-row bg-gray-100 p-4">
+          <div className="-mr-4 flex h-full w-full flex-col py-1 pl-4 pr-4">
+            {/* Personal chat */}
+            <div className="relative h-full">
+              <div className="text-xs font-semibold uppercase text-gray-400">
+                Personal
+              </div>
+              {/* Chats */}
+              <div
+                className={
+                  chats
+                    ? 'h-full overflow-y-scroll pt-2 scrollbar-none'
+                    : 'hidden'
+                }
+              >
+                <div className="-mx-4 flex h-full flex-col divide-y overflow-y-scroll scrollbar-none">
+                  {data3?.rooms.map((item) => (
+                    <div className="relative flex cursor-pointer flex-row items-center p-4">
+                      <div className="absolute right-0 top-0 mr-4 mt-3 text-xs text-gray-500">
+                        2 hours ago
+                      </div>
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
+                        {item?.members[0]?._id === data1?.data?._id
+                          ? item?.members[1]?.name[0]
+                          : item?.members[0]?.name[0]}
+                      </div>
+                      <div className="ml-3 flex flex-grow flex-col">
+                        <div className="text-sm font-medium">
+                          {item?.members[0]?._id === data1?.data?._id
+                            ? item?.members[1]?.name
+                            : item?.members[0]?.name}
+                        </div>
+                        <div className="w-56 truncate text-xs">
+                          Good after noon! how can i help you?dsadsadsadsa
+                        </div>
+                      </div>
+                      <div className="ml-2 mb-1 flex-shrink-0 self-end">
+                        <span
+                          className={
+                            item?.messages.length === 0
+                              ? 'hidden'
+                              : 'flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'
+                          }
+                        >
+                          {item?.messages.length === 0
+                            ? ''
+                            : item?.messages.length}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="ml-auto">
-                <button className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+              {/* newChat */}
+              <div
+                className={
+                  chats
+                    ? 'hidden'
+                    : 'h-full overflow-y-scroll pt-2 scrollbar-none'
+                }
+              >
+                <div className="-mx-4 flex h-full cursor-pointer flex-col divide-y overflow-y-scroll scrollbar-none">
+                  {data3?.rooms.map((i) => {
+                    return data2?.data.map((item) => {
+                      if (
+                        i?.members[0]?._id === item._id ||
+                        i?.members[1]?._id === item._id
+                      ) {
+                        return
+                      } else {
+                        return (
+                          <div
+                            key={item._id}
+                            onClick={(e) => {
+                              setSecondMember(item._id)
+                              setCreatChat(true)
+                              setCheckedName(item.name)
+                            }}
+                            className="relative flex flex-row items-center p-4"
+                          >
+                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
+                              {item.name[0]}
+                            </div>
+                            <div className="ml-3 flex flex-grow flex-col">
+                              <div className="text-sm font-medium">
+                                {item.name}
+                              </div>
+                            </div>
+                            <h1>{checkedName === item.name ? '✔️' : ''}</h1>
+                          </div>
+                        )
+                      }
+                    })
+                  })}
+                </div>
+              </div>
+              {/* Add button */}
+              <div className={chats ? 'absolute top-0 right-0' : 'hidden'}>
+                <button
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-white shadow-sm"
+                  onClick={addChat}
+                >
                   <svg
-                    className="h-4 w-4 stroke-current"
+                    className="h-6 w-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -48,202 +209,34 @@ function Messages() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                     ></path>
                   </svg>
                 </button>
               </div>
-            </div>
-            {/* Options */}
-            <div className="mt-5 ">
-              <ul className="mx-auto flex flex-row items-center justify-between">
-                <li>
-                  <a
-                    href="#"
-                    className="relative flex items-center pb-3 text-xs font-semibold text-indigo-800"
-                  >
-                    <span>All Conversations</span>
-                    <span className="absolute left-0 bottom-0 h-1 w-16 rounded-full bg-indigo-800"></span>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex items-center pb-3 text-xs font-semibold text-gray-700"
-                  >
-                    <span>Archived</span>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="flex items-center pb-3 text-xs font-semibold text-gray-700"
-                  >
-                    <span>Starred</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-            {/* Team chat */}
-            <div>
-              <div className="mt-5">
-                <div className="text-xs font-semibold uppercase text-gray-400">
-                  Team
-                </div>
+              {/* Create room */}
+              <div
+                className={creatChat ? 'absolute top-0 right-20' : 'hidden'}
+                onClick={createRoom}
+              >
+                <button className="flex w-fit items-center justify-center rounded-full bg-blue-500 px-2 py-1 text-sm text-white shadow-sm">
+                  Create Chat
+                </button>
               </div>
-              <div className="mt-2">
-                <div className="-mx-4 flex flex-col">
-                  <div className="relative flex flex-row items-center p-4">
-                    <div className="absolute right-0 top-0 mr-4 mt-3 text-xs text-gray-500">
-                      5 min
-                    </div>
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
-                      T
-                    </div>
-                    <div className="ml-3 flex flex-grow flex-col">
-                      <div className="text-sm font-medium">Cuberto</div>
-                      <div className="w-44 truncate text-xs">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Debitis, doloribus?
-                      </div>
-                    </div>
-                    <div className="ml-2 mb-1 flex-shrink-0 self-end">
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                        5
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-row items-center border-l-2 border-red-500 bg-gradient-to-r from-red-100 to-transparent p-4">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
-                      T
-                    </div>
-                    <div className="ml-3 flex flex-grow flex-col">
-                      <div className="flex items-center">
-                        <div className="text-sm font-medium">UI Art Design</div>
-                        <div className="ml-2 h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <div className="w-40 truncate text-xs">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Debitis, doloribus?
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Personal chat */}
-            <div>
-              <div className="mt-5">
-                <div className="text-xs font-semibold uppercase text-gray-400">
-                  Personal
-                </div>
-              </div>
-              <div className="relative h-72 overflow-y-scroll pt-2 scrollbar-none">
-                <div className="-mx-4 flex h-full flex-col divide-y overflow-y-auto scrollbar-none">
-                  <div className="relative flex flex-row items-center p-4">
-                    <div className="absolute right-0 top-0 mr-4 mt-3 text-xs text-gray-500">
-                      2 hours ago
-                    </div>
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
-                      T
-                    </div>
-                    <div className="ml-3 flex flex-grow flex-col">
-                      <div className="text-sm font-medium">Flo Steinle</div>
-                      <div className="w-40 truncate text-xs">
-                        Good after noon! how can i help you?
-                      </div>
-                    </div>
-                    <div className="ml-2 mb-1 flex-shrink-0 self-end">
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                        3
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-row items-center p-4">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
-                      T
-                    </div>
-                    <div className="ml-3 flex flex-grow flex-col">
-                      <div className="flex items-center">
-                        <div className="text-sm font-medium">Sarah D</div>
-                        <div className="ml-2 h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <div className="w-40 truncate text-xs">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Debitis, doloribus?
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-row items-center p-4">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
-                      T
-                    </div>
-                    <div className="ml-3 flex flex-grow flex-col">
-                      <div className="flex items-center">
-                        <div className="text-sm font-medium">Sarah D</div>
-                        <div className="ml-2 h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <div className="w-40 truncate text-xs">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Debitis, doloribus?
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-row items-center p-4">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
-                      T
-                    </div>
-                    <div className="ml-3 flex flex-grow flex-col">
-                      <div className="flex items-center">
-                        <div className="text-sm font-medium">Sarah D</div>
-                        <div className="ml-2 h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <div className="w-40 truncate text-xs">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Debitis, doloribus?
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-row items-center p-4">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
-                      T
-                    </div>
-                    <div className="ml-3 flex flex-grow flex-col">
-                      <div className="flex items-center">
-                        <div className="text-sm font-medium">Sarah D</div>
-                        <div className="ml-2 h-2 w-2 rounded-full bg-green-500"></div>
-                      </div>
-                      <div className="w-40 truncate text-xs">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Debitis, doloribus?
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute bottom-0 right-0 mr-2">
-                  <button className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-sm">
-                    <svg
-                      className="h-6 w-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
+              {/* Cancel */}
+              <div
+                className={chats ? 'hidden' : 'absolute top-0 right-0'}
+                onClick={addChat}
+              >
+                <button className="flex w-fit items-center justify-center rounded-full bg-gray-500 px-2 py-1 text-sm text-white shadow-sm">
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
         </div>
         {/* Messenger */}
-        <div className="flex h-full w-full flex-col bg-white px-4 py-6">
+        <div className="flex h-full min-w-0 max-w-full flex-col bg-white px-4 py-1">
           {/* head */}
           <div className="flex flex-row items-center rounded-2xl py-4 px-6 shadow">
             {/* Firt letter above */}
@@ -360,6 +353,75 @@ function Messages() {
                     </div>
                   </div>
                 </div>
+                {/* Reciver */}
+                <div className="col-start-1 col-end-8 rounded-lg p-3">
+                  <div className="flex flex-row items-center">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
+                      A
+                    </div>
+                    <div className="relative ml-3 rounded-xl bg-white py-2 px-4 text-sm shadow">
+                      <div>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Vel ipsa commodi illum saepe numquam maxime
+                        asperiores voluptate sit, minima perspiciatis.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Reciver */}
+                <div className="col-start-1 col-end-8 rounded-lg p-3">
+                  <div className="flex flex-row items-center">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
+                      A
+                    </div>
+                    <div className="relative ml-3 rounded-xl bg-white py-2 px-4 text-sm shadow">
+                      <div>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing
+                        elit. Vel ipsa commodi illum saepe numquam maxime
+                        asperiores voluptate sit, minima perspiciatis.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Sender */}
+                <div className="col-start-6 col-end-13 rounded-lg p-3">
+                  <div className="flex flex-row-reverse items-center justify-start">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
+                      A
+                    </div>
+                    <div className="relative mr-3 rounded-xl bg-indigo-100 py-2 px-4 text-sm shadow">
+                      <div>
+                        Lorem ipsum dolor sit, amet consectetur adipisicing. ?
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Sender */}
+                <div className="col-start-6 col-end-13 rounded-lg p-3">
+                  <div className="flex flex-row-reverse items-center justify-start">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
+                      A
+                    </div>
+                    <div className="relative mr-3 rounded-xl bg-indigo-100 py-2 px-4 text-sm shadow">
+                      <div>
+                        Lorem ipsum dolor sit, amet consectetur adipisicing. ?
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Sender */}
+                <div className="col-start-6 col-end-13 rounded-lg p-3">
+                  <div className="flex flex-row-reverse items-center justify-start">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
+                      A
+                    </div>
+                    <div className="relative mr-3 rounded-xl bg-indigo-100 py-2 px-4 text-sm shadow">
+                      <div>
+                        Lorem ipsum dolor sit, amet consectetur adipisicing. ?
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {/* Sender */}
                 <div className="col-start-6 col-end-13 rounded-lg p-3">
                   <div className="flex flex-row-reverse items-center justify-start">
@@ -376,6 +438,7 @@ function Messages() {
                     </div>
                   </div>
                 </div>
+                <div ref={divRef} />
               </div>
             </div>
           </div>

@@ -15,4 +15,7 @@
   .h1 {
     @apply text-lg font-semibold;
   }
+  .x1t2pt76 {
+    min-height: inherit !important;
+  }
 }

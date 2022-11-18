@@ -6,6 +6,7 @@ import Header from '../components/Header'
 import Tasks from './tasks'
 
 const Home: NextPage = () => {
+
   const [headerViewd, setHeaderViewd] = useState(true)
 
   const router = useRouter()
