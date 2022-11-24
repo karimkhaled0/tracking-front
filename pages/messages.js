@@ -91,6 +91,7 @@ function Messages() {
     })
     return res.data
   }
+
   return (
     <div className="h-[90vh]">
       <Header islogged={user} />
@@ -112,8 +113,11 @@ function Messages() {
                 }
               >
                 <div className="-mx-4 flex h-full flex-col divide-y overflow-y-scroll scrollbar-none">
-                  {data3?.rooms.map((item) => (
-                    <div className="relative flex cursor-pointer flex-row items-center p-4">
+                  {data3?.rooms.map((item, i) => (
+                    <div
+                      key={item._id}
+                      className="relative flex cursor-pointer flex-row items-center p-4"
+                    >
                       <div className="absolute right-0 top-0 mr-4 mt-3 text-xs text-gray-500">
                         2 hours ago
                       </div>
@@ -129,7 +133,10 @@ function Messages() {
                             : item?.members[0]?.name}
                         </div>
                         <div className="w-56 truncate text-xs">
-                          Good after noon! how can i help you?dsadsadsadsa
+                          {item.messages.map(() => {
+                            return item.messages[item?.messages.length - 1]
+                              .content
+                          })}
                         </div>
                       </div>
                       <div className="ml-2 mb-1 flex-shrink-0 self-end">
@@ -158,37 +165,26 @@ function Messages() {
                 }
               >
                 <div className="-mx-4 flex h-full cursor-pointer flex-col divide-y overflow-y-scroll scrollbar-none">
-                  {data3?.rooms.map((i) => {
-                    return data2?.data.map((item) => {
-                      if (
-                        i?.members[0]?._id === item._id ||
-                        i?.members[1]?._id === item._id
-                      ) {
-                        return
-                      } else {
-                        return (
-                          <div
-                            key={item._id}
-                            onClick={(e) => {
-                              setSecondMember(item._id)
-                              setCreatChat(true)
-                              setCheckedName(item.name)
-                            }}
-                            className="relative flex flex-row items-center p-4"
-                          >
-                            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
-                              {item.name[0]}
-                            </div>
-                            <div className="ml-3 flex flex-grow flex-col">
-                              <div className="text-sm font-medium">
-                                {item.name}
-                              </div>
-                            </div>
-                            <h1>{checkedName === item.name ? '✔️' : ''}</h1>
-                          </div>
-                        )
-                      }
-                    })
+                  {data2?.data.map((item) => {
+                    return (
+                      <div
+                        key={item._id}
+                        onClick={(e) => {
+                          setSecondMember(item._id)
+                          setCreatChat(true)
+                          setCheckedName(item.name)
+                        }}
+                        className="relative flex flex-row items-center p-4"
+                      >
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold text-pink-300">
+                          {item.name[0]}
+                        </div>
+                        <div className="ml-3 flex flex-grow flex-col">
+                          <div className="text-sm font-medium">{item.name}</div>
+                        </div>
+                        <h1>{checkedName === item.name ? '✔️' : ''}</h1>
+                      </div>
+                    )
                   })}
                 </div>
               </div>
@@ -326,112 +322,26 @@ function Messages() {
           {/* Chat */}
           <div className="h-full overflow-x-hidden overflow-y-scroll py-4 scrollbar-none">
             <div className="h-full overflow-x-hidden overflow-y-scroll scrollbar-none">
-              <div className="grid grid-cols-12 gap-y-2">
+              <div className="grid w-[74vw] grid-cols-1 gap-y-2">
                 {/* Reciver */}
-                <div className="col-start-1 col-end-8 rounded-lg p-3">
+                <div className="col-start-1 col-end-8 ml-5 rounded-lg p-3">
                   <div className="flex flex-row items-center">
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
                       A
                     </div>
                     <div className="relative ml-3 rounded-xl bg-white py-2 px-4 text-sm shadow">
-                      <div>Hey How are you today?</div>
-                    </div>
-                  </div>
-                </div>
-                {/* Reciver */}
-                <div className="col-start-1 col-end-8 rounded-lg p-3">
-                  <div className="flex flex-row items-center">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
-                      A
-                    </div>
-                    <div className="relative ml-3 rounded-xl bg-white py-2 px-4 text-sm shadow">
-                      <div>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Vel ipsa commodi illum saepe numquam maxime
-                        asperiores voluptate sit, minima perspiciatis.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Reciver */}
-                <div className="col-start-1 col-end-8 rounded-lg p-3">
-                  <div className="flex flex-row items-center">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
-                      A
-                    </div>
-                    <div className="relative ml-3 rounded-xl bg-white py-2 px-4 text-sm shadow">
-                      <div>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Vel ipsa commodi illum saepe numquam maxime
-                        asperiores voluptate sit, minima perspiciatis.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Reciver */}
-                <div className="col-start-1 col-end-8 rounded-lg p-3">
-                  <div className="flex flex-row items-center">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
-                      A
-                    </div>
-                    <div className="relative ml-3 rounded-xl bg-white py-2 px-4 text-sm shadow">
-                      <div>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Vel ipsa commodi illum saepe numquam maxime
-                        asperiores voluptate sit, minima perspiciatis.
-                      </div>
+                      <div>hi</div>
                     </div>
                   </div>
                 </div>
                 {/* Sender */}
-                <div className="col-start-6 col-end-13 rounded-lg p-3">
-                  <div className="flex flex-row-reverse items-center justify-start">
+                <div className="col-start-6 col-end-13 mr-5 rounded-lg p-3">
+                  <div className="flex  flex-row-reverse items-center justify-start">
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
                       A
                     </div>
                     <div className="relative mr-3 rounded-xl bg-indigo-100 py-2 px-4 text-sm shadow">
-                      <div>
-                        Lorem ipsum dolor sit, amet consectetur adipisicing. ?
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Sender */}
-                <div className="col-start-6 col-end-13 rounded-lg p-3">
-                  <div className="flex flex-row-reverse items-center justify-start">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
-                      A
-                    </div>
-                    <div className="relative mr-3 rounded-xl bg-indigo-100 py-2 px-4 text-sm shadow">
-                      <div>
-                        Lorem ipsum dolor sit, amet consectetur adipisicing. ?
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Sender */}
-                <div className="col-start-6 col-end-13 rounded-lg p-3">
-                  <div className="flex flex-row-reverse items-center justify-start">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
-                      A
-                    </div>
-                    <div className="relative mr-3 rounded-xl bg-indigo-100 py-2 px-4 text-sm shadow">
-                      <div>
-                        Lorem ipsum dolor sit, amet consectetur adipisicing. ?
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Sender */}
-                <div className="col-start-6 col-end-13 rounded-lg p-3">
-                  <div className="flex flex-row-reverse items-center justify-start">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500">
-                      A
-                    </div>
-                    <div className="relative mr-3 rounded-xl bg-indigo-100 py-2 px-4 text-sm shadow">
-                      <div>
-                        Lorem ipsum dolor sit, amet consectetur adipisicing. ?
-                      </div>
+                      <div>hi</div>
                       <div className="absolute bottom-0 right-0 -mb-5 mr-2 text-xs text-gray-500">
                         Seen
                       </div>
