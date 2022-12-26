@@ -23,6 +23,14 @@ function Messages() {
 
   // TODO: Customer service chat (Admins&TeamLeaders are customer service) - (Technical is the customer)
   // TODO: the chat will have end (Delete) and start (Create)
+  /* TODO: 
+    let arr1 = [1,2,3]
+    undefined
+    let arr2 = [1,2,3,4,5,6]
+    undefined
+    arr2 = arr2.filter(val => !arr1.includes(val));
+    (3) [4, 5, 6]
+  */
   const divRef = useRef(null)
   useEffect(() => {
     divRef.current.scrollIntoView({ behavior: 'auto' })
