@@ -3,10 +3,9 @@ import { SearchIcon } from '@heroicons/react/outline'
 import { format, parseISO } from 'date-fns'
 import { useRouter } from 'next/router'
 import CreateTask from '../components/CreateTask'
-import GetTasks from '../components/getTasks'
 import Header from '../components/Header'
 import ViewTask from '../components/ViewTask'
-
+import GetTasks from '../components/GetTasks'
 function Tasks() {
   const router = useRouter()
   const [categoryRes, setCategoryRes] = useState([])
