@@ -41,7 +41,7 @@ function Teams() {
     const [teamLeaderCategory, setTeamLeaderCategory] = useState([])
 
     const loggedHandler = useEffect(async () => {
-        const res = await fetch('http://localhost:8000/api/user/me', {
+        const res = await fetch('https://tracking-back.onrender.com/api/user/me', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ function Teams() {
     }, [])
 
     const getCategory = useEffect(async () => {
-        const res = await fetch('http://localhost:8000/api/category', {
+        const res = await fetch('https://tracking-back.onrender.com/api/category', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ function Teams() {
     }, [hi])    // hi is props for let category run again to fetch and add technicals
 
     const getTechnicals = useEffect(async () => {
-        const res = await fetch('http://localhost:8000/api/user/technicals', {
+        const res = await fetch('https://tracking-back.onrender.com/api/user/technicals', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ function Teams() {
     // Create Category with technicals and team leader
     var categId
     const createCategory = async () => {
-        const res = await fetch(`http://localhost:8000/api/category`, {
+        const res = await fetch(`https://tracking-back.onrender.com/api/category`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -140,7 +140,7 @@ function Teams() {
         })
         let allTechnicals = newArray.concat(newArray2)
         allTechnicals?.map(async (i) => {
-            const res = await fetch(`http://localhost:8000/api/user/${i}`, {
+            const res = await fetch(`https://tracking-back.onrender.com/api/user/${i}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

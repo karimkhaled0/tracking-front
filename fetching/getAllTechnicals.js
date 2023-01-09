@@ -3,7 +3,7 @@ import axios from 'axios'
 export const getAllTechnicals = async () => {
   const options = {
     method: 'GET',
-    url: 'http://localhost:8000/api/user/technicals',
+    url: 'https://tracking-back.onrender.com/api/user/technicals',
     headers: {
       authorization: `Bearer ${localStorage.token}`,
       'Content-Type': 'application/x-www-form-urlencoded',

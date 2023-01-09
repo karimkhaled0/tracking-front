@@ -32,7 +32,7 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
   const cancelButtonRef = useRef(null)
 
   const deleteTask = async () => {
-    const res = await fetch(`http://localhost:8000/api/task/${taskId}`, {
+    const res = await fetch(`https://tracking-back.onrender.com/api/task/${taskId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
     })
   }
   const finishTask = async () => {
-    const res = await fetch(`http://localhost:8000/api/task/${taskId}`, {
+    const res = await fetch(`https://tracking-back.onrender.com/api/task/${taskId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
     })
   }
   const getBackToProgress = async () => {
-    const res = await fetch(`http://localhost:8000/api/task/${taskId}`, {
+    const res = await fetch(`https://tracking-back.onrender.com/api/task/${taskId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
   // Get task
   const [coordinate, setCoordinate] = useState({})
   const getTask = useEffect(async () => {
-    const res = await fetch(`http://localhost:8000/api/task/${taskId}`, {
+    const res = await fetch(`https://tracking-back.onrender.com/api/task/${taskId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
   const [categoryRes, setCategoryRes] = useState([])
   //  Categories (GET)
   const getCategory = useEffect(async () => {
-    const res = await fetch('http://localhost:8000/api/category', {
+    const res = await fetch('https://tracking-back.onrender.com/api/category', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ function ViewTask({ description, customerName, phoneNumber, address, category, t
   }
 
   const updateTaskPut = async () => {
-    const res = await fetch(`http://localhost:8000/api/task/${taskId}`, {
+    const res = await fetch(`https://tracking-back.onrender.com/api/task/${taskId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

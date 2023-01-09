@@ -26,7 +26,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     const useEffectError = async () => {
-      const res = await fetch('http://localhost:8000/api/user/me', {
+      const res = await fetch('https://tracking-back.onrender.com/api/user/me', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

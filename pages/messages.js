@@ -82,7 +82,7 @@ function Messages() {
   const createRoom = async () => {
     const options = {
       method: 'POST',
-      url: 'http://localhost:8000/api/chat',
+      url: 'https://tracking-back.onrender.com/api/chat',
       headers: {
         authorization: `Bearer ${localStorage.token}`,
         'Content-Type': 'application/x-www-form-urlencoded',

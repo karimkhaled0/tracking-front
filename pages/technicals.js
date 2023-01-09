@@ -18,7 +18,7 @@ import Avatar from 'react-avatar'
 import { Dialog, Transition } from '@headlessui/react'
 import { io } from 'socket.io-client'
 
-const socket = io('http://localhost:8000')
+const socket = io('https://tracking-back.onrender.com')
 socket.on('connect', (data) => {
   console.log('connected', data)
 })
@@ -73,7 +73,7 @@ function Technicals() {
   const [teamLeaderCategory, setTeamLeaderCategory] = useState([])
 
   const loggedHandler = useEffect(async () => {
-    const res = await fetch('http://localhost:8000/api/user/me', {
+    const res = await fetch('https://tracking-back.onrender.com/api/user/me', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -98,13 +98,16 @@ function Technicals() {
   const [technicals, setTechnicals] = useState([])
   // get technicals
   const getTechnicals = useEffect(async () => {
-    const res = await fetch('http://localhost:8000/api/user/technicals', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: `Bearer ${localStorage.token}`,
-      },
-    })
+    const res = await fetch(
+      'https://tracking-back.onrender.com/api/user/technicals',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${localStorage.token}`,
+        },
+      }
+    )
       .then((t) => t.json())
       .catch((e) => {
         router.push({
@@ -118,7 +121,7 @@ function Technicals() {
   //  Categories (GET)
   const [categoryRes, setCategoryRes] = useState([])
   const getCategory = useEffect(async () => {
-    const res = await fetch('http://localhost:8000/api/category', {
+    const res = await fetch('https://tracking-back.onrender.com/api/category', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -145,7 +148,7 @@ function Technicals() {
 
   const signUp = async (e) => {
     e.preventDefault()
-    const res = await fetch('http://localhost:8000/signup', {
+    const res = await fetch('https://tracking-back.onrender.com/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -523,7 +526,7 @@ function Technicals() {
                           {prog ? (
                             <button
                               type="button"
-                              className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+                              className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
                             >
                               <h1 className="animate-spin"></h1>
                               Loading...
@@ -531,7 +534,7 @@ function Technicals() {
                           ) : (
                             <button
                               type="button"
-                              className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+                              className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
                               onClick={signUp}
                             >
                               Create

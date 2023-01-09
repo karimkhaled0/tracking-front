@@ -15,7 +15,7 @@ function Tasks() {
   const [finished, setFinished] = useState(false)
   const [user, setUser] = useState(false)
   const loggedHandler = useEffect(async () => {
-    const res = await fetch('http://localhost:8000/api/user/me', {
+    const res = await fetch('https://tracking-back.onrender.com/api/user/me', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ function Tasks() {
   }
   // get category
   useEffect(async () => {
-    const res = await fetch('http://localhost:8000/api/category', {
+    const res = await fetch('https://tracking-back.onrender.com/api/category', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ function Tasks() {
   }, [])
   // get tasks
   useEffect(async () => {
-    const res = await fetch('http://localhost:8000/api/task', {
+    const res = await fetch('https://tracking-back.onrender.com/api/task', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ function Tasks() {
   const [teamLeaderCategory, setTeamLeaderCategory] = useState([])
 
   const profile = useEffect(async () => {
-    const res = await fetch('http://localhost:8000/api/user/me', {
+    const res = await fetch('https://tracking-back.onrender.com/api/user/me', {
       method: 'GET',
       headers: {
         authorization: `Bearer ${localStorage.token}`,

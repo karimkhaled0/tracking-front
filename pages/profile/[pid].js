@@ -30,7 +30,7 @@ const teams = () => {
     }
     const cancelButtonRef = useRef(null)
     const profile = useEffect(async () => {
-        const res = await fetch('http://localhost:8000/api/user/me', {
+        const res = await fetch('https://tracking-back.onrender.com/api/user/me', {
             method: 'GET',
             headers: {
                 'authorization': `Bearer ${localStorage.token}`
@@ -63,7 +63,7 @@ const teams = () => {
     // get technicals
     const [technicals, setTechnicals] = useState([])
     const getTechnicals = useEffect(async () => {
-        const res = await fetch('http://localhost:8000/api/user/technicals', {
+        const res = await fetch('https://tracking-back.onrender.com/api/user/technicals', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ const teams = () => {
     // Get user Data
     const getUserData = useEffect(() => {
         const userData = async () => {
-            const res = await fetch(`http://localhost:8000/api/user/${userId}`, {
+            const res = await fetch(`https://tracking-back.onrender.com/api/user/${userId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ const teams = () => {
         setEdit(!edit)
     }
     const editUserProfile = async () => {
-        const res = await fetch(`http://localhost:8000/api/user/${userId}`, {
+        const res = await fetch(`https://tracking-back.onrender.com/api/user/${userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -151,7 +151,7 @@ const teams = () => {
     }
 
     const deleteUser = async () => {
-        const res = await fetch(`http://localhost:8000/api/user/${userId}`, {
+        const res = await fetch(`https://tracking-back.onrender.com/api/user/${userId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
